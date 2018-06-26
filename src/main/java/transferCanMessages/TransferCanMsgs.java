@@ -1,6 +1,5 @@
 package transferCanMessages;
 
-import detectionModules.DBintf;
 import transferCanMessages.UcanLibrary.Msg;
 
 import java.util.ArrayList;
