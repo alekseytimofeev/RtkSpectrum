@@ -352,7 +352,6 @@ public abstract class UsbCanInterface implements Closeable {
 		BYTE res = usbCanLibrary.UcanInitHwConnectControlEx(eventsControlUsbCan, null);
 		if (res.intValue() != functionReturnCodes.get(USBCAN_SUCCESSFUL)) {
 			//TODO Logger!
-			System.out.println("UcanInitHwConnectControlEx error "  + res.intValue());
 			throw new RuntimeException("UcanInitHwConnectControlEx error " + res.intValue());
 		}
 	}
@@ -369,7 +368,6 @@ public abstract class UsbCanInterface implements Closeable {
 													null);
 
 		if(res.intValue() != functionReturnCodes.get(USBCAN_SUCCESSFUL)) {
-			System.out.println( "UcanInitHardwareEx error " +  res.intValue() );
 			throw new RuntimeException("UcanInitHardwareEx error " + res.intValue());
 		}
 	}
@@ -393,7 +391,6 @@ public abstract class UsbCanInterface implements Closeable {
 													param);
 
 		if(res.intValue() != functionReturnCodes.get(USBCAN_SUCCESSFUL)) {
-			System.out.println( "UcanInitCanEx2 error " +  res.intValue() );
 			throw new RuntimeException("UcanInitCanEx2 error " + res.intValue());
 		}
 	}
@@ -409,7 +406,6 @@ public abstract class UsbCanInterface implements Closeable {
 													usbCanChannel);
 
 		if (res.intValue() != functionReturnCodes.get(USBCAN_SUCCESSFUL)) {
-			System.out.println( "UcanDeinitCanEx error " + res.intValue());
 			throw new RuntimeException("UcanDeinitCanEx error " + res.intValue());
 		}
 	}
@@ -418,7 +414,6 @@ public abstract class UsbCanInterface implements Closeable {
 		BYTE res = usbCanLibrary.UcanDeinitHardware(new BYTE(usbCanHandle.getValue()));
 
 		if (res.intValue() != functionReturnCodes.get(USBCAN_SUCCESSFUL)) {
-			System.out.println( "UcanDeinitHardware error " + res.intValue());
 			throw new RuntimeException("UcanDeinitHardware error " + res.intValue());
 		}
 	}
@@ -432,7 +427,6 @@ public abstract class UsbCanInterface implements Closeable {
 	private void deInitHardwareControl() {
 		BYTE res =  usbCanLibrary.UcanDeinitHwConnectControl();
 		if (res.intValue() != functionReturnCodes.get(USBCAN_SUCCESSFUL)) {
-			System.out.println( "UcanDeinitHwConnectControl error " + res.intValue());
 			throw new RuntimeException("UcanDeinitHwConnectControl error " + res.intValue());
 		}
 	}
@@ -449,7 +443,6 @@ public abstract class UsbCanInterface implements Closeable {
 														new DWORDByReference(new DWORD(msgs.length)));
 
       	if (res.intValue() != functionReturnCodes.get(USBCAN_SUCCESSFUL)) {
-      		System.out.println( "UcanWriteCanMsgEx error " + res.intValue());
       		throw new RuntimeException("UcanWriteCanMsgEx error " + res.intValue());
         }
 	}
