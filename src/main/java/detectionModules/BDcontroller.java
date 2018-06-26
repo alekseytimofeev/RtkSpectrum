@@ -14,7 +14,6 @@ import static detectionModules.BDcontroller.Command.*;
 import static detectionModules.BDcontroller.TypeMsg.*;
 
 
-
 public abstract class BDcontroller
 {
     static {
@@ -32,7 +31,6 @@ public abstract class BDcontroller
     private int idReply = 0x200;
 
     Parsing parsing = new Parsing(idDanger, idManagement, idReply);
-
 
     public enum Parameter {
         ZERO_OFFSET, SENSITIVITY,
