@@ -1,6 +1,5 @@
 package transferCanMessages;
 
-
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.LongHolder;
 
@@ -395,7 +394,7 @@ public abstract class UsbCanInterface implements Closeable {
 		}
 	}
 
-	void shutDown() {
+	public void shutDown() {
 		deInitCan();
 		deInitHardware();
 	    usbCanHandle.setValue( handleStates.get(USBCAN_INVALID_HANDLE).byteValue());
@@ -482,7 +481,7 @@ public abstract class UsbCanInterface implements Closeable {
         }
 	}
 
-	void reset() {
+	public void reset() {
 		BYTE res =  usbCanLibrary.UcanResetCanEx(	new BYTE(usbCanHandle.getValue()),
 													usbCanChannel,
 													new DWORD(resets.get(USBCAN_RESET_ALL)));
@@ -492,7 +491,7 @@ public abstract class UsbCanInterface implements Closeable {
         }
 	 }
 
-	void getStatus(IntHolder statusCan, IntHolder statusUsb)  {
+	public void getStatus(IntHolder statusCan, IntHolder statusUsb)  {
 		Status.ByRef status = new Status.ByRef();
 
 		BYTE res =  usbCanLibrary.UcanGetStatusEx(	new BYTE(usbCanHandle.getValue()),
@@ -508,7 +507,7 @@ public abstract class UsbCanInterface implements Closeable {
 		}
 	}
 
-	void getErrorCounter(LongHolder trErrorCounter, LongHolder recErrorCounter)  {
+	public void getErrorCounter(LongHolder trErrorCounter, LongHolder recErrorCounter)  {
 		DWORDByReference refTrErrorCounter = new DWORDByReference();
 		DWORDByReference refRecErrorCounter = new DWORDByReference();
 
@@ -526,7 +525,7 @@ public abstract class UsbCanInterface implements Closeable {
 		}
 	}
 
-	void getVersion(IntHolder verMajor, IntHolder verMinor, IntHolder verRelease, VersionType type) {
+	public void getVersion(IntHolder verMajor, IntHolder verMinor, IntHolder verRelease, VersionType type) {
 
 		DWORD tp = new DWORD();
 		tp.setValue(versionTypes.get(type));

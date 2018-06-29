@@ -3,18 +3,24 @@ package widget.controllers;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class MainWidgetController implements Initializable
+public class RootController implements Initializable
 {
     @FXML
     public Button btn;
 
     @FXML
+    public Label lbl;
+
+    @FXML
     private void onButtonClickWorkDB() {
         System.out.println("Spectr!!!!");
+        lbl.setText("1111");
+        System.out.println("Thread name:" + Thread.currentThread().getName() + " id : " + Thread.currentThread().getId());
     }
 
     @Override
@@ -24,7 +30,7 @@ public class MainWidgetController implements Initializable
         System.out.println( "ResourceBundle: " + resources);
     }
 
-    public MainWidgetController() {
-        System.out.println("MainWidgetController: " + btn);
+    public RootController() {
+        System.out.println("RootController: " + btn);
     }
 }

@@ -164,8 +164,7 @@ public abstract class BDcontroller
         commandsNames.put(code, "Измерение спетра");
     }
 
-
-    private byte getCodeLengthParameter(Parameter parameter) {
+    private byte getCodeLengthByParameter(Parameter parameter) {
         switch(parameter) {
             case ZERO_OFFSET:
                 return 1;
@@ -241,6 +240,21 @@ public abstract class BDcontroller
         return new SetParameter(this, logicNumber, parameter, value);
     }
 
+    public BDcommand getCommandSetState(byte logicNumber, State state) {
+        return new SetState(this, logicNumber, state);
+    }
+
+    public BDcommand setCommandStartMeasure(byte logicNumber) {
+        return new StartMeasure(this, logicNumber);
+    }
+
+    public BDcommand setCommandStopMeasure(byte logicNumber) {
+        return new StopMeasure(this, logicNumber);
+    }
+
+
+
+
     public void readMsgs() {
         List<Msg> msgs = transferCanMsg.subFromReceiveCanMsgs();
         for (Msg msg: msgs) {
@@ -285,14 +299,13 @@ public abstract class BDcontroller
     }
 
     protected void setParameter(byte logicNumber, Parameter parameter, int value) {
-
         byte[] bytesValue = ByteBuffer.allocate(Integer.BYTES).putInt(value).array();
         List<Msg> msgs = new ArrayList<>();
         msgs.add(new Msg(idManagement + logicNumber,
                     new byte[] {
                         commandsCodes.get(SET_PARAMETER),
                         parameterCodes.get(parameter),
-                        getCodeLengthParameter(parameter),
+                        getCodeLengthByParameter(parameter),
                         bytesValue[0],
                         bytesValue[1],
                         bytesValue[2],
@@ -350,7 +363,6 @@ public abstract class BDcontroller
     protected abstract void onNewParameter(byte parameter, float value);
     protected abstract void onNewMeasureData(MeasureData data);
     protected abstract void onNewMeasureData(CalibrationData data);
-
 
     interface MeasureData {
     }

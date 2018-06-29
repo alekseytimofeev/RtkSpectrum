@@ -1,6 +1,6 @@
 package detectionModules;
 
-public class BDMGcontroller extends DBcontroller {
+public class BDMGcontroller extends BDcontroller {
 
 
     @Override
@@ -26,5 +26,6 @@ public class BDMGcontroller extends DBcontroller {
 
     @Override
     protected void onNewMeasureData(CalibrationData data) {
+
     }
 }

@@ -1,6 +1,6 @@
 package widget;
 
-import detectionModules.BDMGcontroller;
+
 import javafx.application.Application;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
@@ -11,65 +11,107 @@ import javafx.scene.control.TabPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import widget.controllers.*;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.ResourceBundle;
+import java.io.IOException;import java.util.ResourceBundle;
 
 public class Widget extends Application {
 
-    private static TransferCanMsgs transferCanMsg;
-    protected static BDMGcontroller bd;
+    private RootController          rootController;
+    private HeaderController        headerController;
+    private ControlController       controlController;
+    private MeasurementController   measurementController;
+    private ObservationController   observationController;
+    private StorageController       storageController;
+    private DataBaseController      dataBaseController;
+    private ProcessingController    processingController;
+    private IdealModelsController   idealModelsController;
+    private ParametersController    parametersController;
 
-    public static void main(String[] args) {
-
-        bd = new BDMGcontroller();
-        transferCanMsg = new TransferCanMsgs();
-        bd.setTransferCanMsg(transferCanMsg);
-
-
+    public static void initialize(String[] args) {
         launch(args);
     }
 
     @Override
-    public void start(Stage primaryStage) {
-
-        Class<? extends Widget> aClass = getClass();
-        Pane rootPane           = getPane(aClass.getResource("../../resources/fxml/Root.fxml"));
-        Pane headerPane         = getPane(aClass.getResource("../../resources/fxml/Header.fxml"));
-        Pane controlPane        = getPane(aClass.getResource("../../resources/fxml/Control.fxml"));
-        Pane measurementPane    = getPane(aClass.getResource("../../resources/fxml/Measurement.fxml"));
-        Pane observationPane    = getPane(aClass.getResource("../../resources/fxml/Observation.fxml"));
-        Pane storagePane        = getPane(aClass.getResource("../../resources/fxml/Storage.fxml"));
-        Pane dataBasePane       = getPane(aClass.getResource("../../resources/fxml/DataBase.fxml"));
-        Pane processingPane     = getPane(aClass.getResource("../../resources/fxml/Processing.fxml"));
-        Pane idealModelsPane    = getPane(aClass.getResource("../../resources/fxml/IdealModels.fxml"));
-        Pane parametersPane     = getPane(aClass.getResource("../../resources/fxml/Parameters.fxml"));
-
-        joinTabs(rootPane, headerPane, controlPane, measurementPane, observationPane, storagePane, dataBasePane, processingPane, idealModelsPane, parametersPane);
-
-        primaryStage.setTitle("Spectrum");
-        primaryStage.setScene(new Scene(rootPane, 900, 550));
-
-        primaryStage.show();
-    }
-
-    private void joinTabs(Pane rootPane, Pane headerPane, Pane controlPane, Pane measurementPane, Pane observationPane, Pane storagePane, Pane dataBasePane, Pane processingPane, Pane idealModelsPane, Pane parametersPane)
+    public void start(Stage primaryStage) throws IOException
     {
-        //TODO add header
+        Class<? extends Widget> aClass = getClass();
+        FXMLLoader loader = new FXMLLoader(aClass.getResource("../../resources/fxml/Root.fxml"));
+        Pane rootPane = loader.load();
+        ResourceBundle resources = null;
+        loader.setResources(resources);
+        rootController = loader.getController();
+
+        loader = new FXMLLoader(aClass.getResource("../../resources/fxml/Header.fxml"));
+        Pane headerPane = loader.load();
+        resources = null;
+        loader.setResources(resources);
+        headerController = loader.getController();
+
+        loader = new FXMLLoader(aClass.getResource("../../resources/fxml/Control.fxml"));
+        Pane controlPane = loader.load();
+        resources = null;
+        loader.setResources(resources);
+        controlController = loader.getController();
+
+        loader = new FXMLLoader(aClass.getResource("../../resources/fxml/Measurement.fxml"));
+        Pane measurementPane = loader.load();
+        resources = null;
+        loader.setResources(resources);
+        measurementController = loader.getController();
+
+        loader = new FXMLLoader(aClass.getResource("../../resources/fxml/Observation.fxml"));
+        Pane observationPane = loader.load();
+        resources = null;
+        loader.setResources(resources);
+        observationController = loader.getController();
+
+        loader = new FXMLLoader(aClass.getResource("../../resources/fxml/Storage.fxml"));
+        Pane storagePane = loader.load();
+        resources = null;
+        loader.setResources(resources);
+        storageController = loader.getController();
+
+        loader = new FXMLLoader(aClass.getResource("../../resources/fxml/DataBase.fxml"));
+        Pane dataBasePane = loader.load();
+        resources = null;
+        loader.setResources(resources);
+        dataBaseController = loader.getController();
+
+        loader = new FXMLLoader(aClass.getResource("../../resources/fxml/Processing.fxml"));
+        Pane processingPane = loader.load();
+        resources = null;
+        loader.setResources(resources);
+        processingController = loader.getController();
+
+        loader = new FXMLLoader(aClass.getResource("../../resources/fxml/IdealModels.fxml"));
+        Pane idealModelsPane = loader.load();
+        resources = null;
+        loader.setResources(resources);
+        idealModelsController = loader.getController();
+
+        loader = new FXMLLoader(aClass.getResource("../../resources/fxml/Parameters.fxml"));
+        Pane parametersPane = loader.load();
+        resources = null;
+        loader.setResources(resources);
+        parametersController = loader.getController();
+
+
         rootPane.getChildren().forEach(node -> {
             String id = node.getId();
-            if(id != null) {
-                if (id.equals("tabs") && node instanceof TabPane) {
+            if (id != null)
+            {
+                if (id.equals("tabs") && node instanceof TabPane)
+                {
                     ObservableList<Tab> tabs = ((TabPane) node).getTabs();
-                    Tab controlTab      = new Tab("Контроль", controlPane);
-                    Tab measurementTab  = new Tab("Измерение", measurementPane);
-                    Tab observationTab  = new Tab("Наблюдение", observationPane);
-                    Tab storageTab      = new Tab("Хранение", storagePane);
-                    Tab dataBaseTab     = new Tab("База", dataBasePane);
-                    Tab processingTab   = new Tab("Обработка", processingPane);
-                    Tab idealModelsTab  = new Tab("Эталоны", idealModelsPane);
-                    Tab parametersTab   = new Tab("Эталоны", parametersPane);
+                    Tab controlTab = new Tab("Контроль", controlPane);
+                    Tab measurementTab = new Tab("Измерение", measurementPane);
+                    Tab observationTab = new Tab("Наблюдение", observationPane);
+                    Tab storageTab = new Tab("Хранение", storagePane);
+                    Tab dataBaseTab = new Tab("База", dataBasePane);
+                    Tab processingTab = new Tab("Обработка", processingPane);
+                    Tab idealModelsTab = new Tab("Эталоны", idealModelsPane);
+                    Tab parametersTab = new Tab("Параметры", parametersPane);
 
                     tabs.add(controlTab);
                     tabs.add(measurementTab);
@@ -80,38 +122,17 @@ public class Widget extends Application {
                     tabs.add(idealModelsTab);
                     tabs.add(parametersTab);
                 }
-                else if(id.equals("header")  && node instanceof StackPane){
+                else if(id.equals("header")  && node instanceof StackPane) {
                     ((StackPane) node).getChildren().add(headerPane);
-
                 }
             }
         });
+
+        primaryStage.setTitle("Spectrum");
+        primaryStage.setScene(new Scene(rootPane, 900, 550));
+
+        primaryStage.show();
+
     }
-
-    private Pane getPane(URL url) {
-        Pane pane;
-        FXMLLoader loader = new FXMLLoader(url);
-
-        try {
-            pane = loader.load();
-        }
-        catch (LoadException e) {
-            System.out.println("LoadException. Error parsing " + url);//TODO add logger!
-            throw new RuntimeException("Error load " + url, e);
-        }
-        catch (IOException e) {
-            System.out.println("IOException. Error input/output " + url);//TODO add logger!
-            throw new RuntimeException("Error i/o " + url, e);
-        }
-
-        ResourceBundle resources = null;
-        loader.setResources(resources);
-        Object controller = loader.getController();
-        System.out.println("Controller: " + controller.getClass().getSimpleName());
-
-
-        return pane;
-    }
-
 
 }

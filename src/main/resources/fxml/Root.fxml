@@ -5,10 +5,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="200.0" minWidth="-Infinity" prefHeight="556.0" prefWidth="809.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="widget.controllers.MainWidgetController">
-   <left>
-      <Button mnemonicParsing="false" text="Button" BorderPane.alignment="CENTER" />
-   </left>
+<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="200.0" minWidth="-Infinity" prefHeight="556.0" prefWidth="809.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="widget.controllers.RootController">
    <bottom>
       <Button mnemonicParsing="false" onAction="#onButtonClickWorkDB" text="SPECRT" BorderPane.alignment="CENTER" />
    </bottom>
@@ -24,4 +21,12 @@
    <top>
       <StackPane fx:id="header" prefHeight="150.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
    </top>
+   <left>
+      <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+         <children>
+            <Label fx:id="lbl" text="Label" />
+            <Label text="Label" />
+         </children>
+      </VBox>
+   </left>
 </BorderPane>

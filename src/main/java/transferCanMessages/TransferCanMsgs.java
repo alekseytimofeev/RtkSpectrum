@@ -15,8 +15,9 @@ public class TransferCanMsgs extends UsbCanInterface  {
 	private int countTrCanMsg;
 	private int countRecCanMsg;
 
-	public TransferCanMsgs() {
+	private TransferCanMsgs() {
 		super();
+		System.out.println("Thread name:" + Thread.currentThread().getName() + " id : " + Thread.currentThread().getId());
 	}
 
 	public static TransferCanMsgs getInstance() {
