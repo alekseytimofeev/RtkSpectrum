@@ -4,7 +4,6 @@ import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.LongHolder;
 
 import com.sun.jna.Callback;
-import com.sun.jna.Native;
 import com.sun.jna.Pointer;
 import com.sun.jna.ptr.ByteByReference;
 
@@ -21,7 +20,9 @@ import transferCanMessages.UcanLibrary.MsgCountInfo;
 
 import java.io.Closeable;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static transferCanMessages.UsbCanInterface.Baudrate.*;
@@ -34,7 +35,7 @@ import static transferCanMessages.UsbCanInterface.UsbStatus.*;
 import static transferCanMessages.UsbCanInterface.Reset.*;
 import static transferCanMessages.UsbCanInterface.VersionType.*;
 
-public abstract class UsbCanInterface implements Closeable {
+class UsbCanInterface implements Closeable {
 
 	static {
 		initCanStatuses();
@@ -48,11 +49,11 @@ public abstract class UsbCanInterface implements Closeable {
 		initHandleStates();
 	}
 
-	private final UcanLibrary usbCanLibrary 	= (UcanLibrary) Native.loadLibrary("Usbcan64", UcanLibrary.class);
+	private final UcanLibrary usbCanLibrary;
+	private final Callback eventsControlUsbCan;
+	private final Callback eventsUsbCan;
 	private final ByteByReference usbCanHandle  = new ByteByReference();
 	private final BYTE usbCanChannel			= new BYTE(channels.get(USBCAN_CHANNEL_CAN1));
-	private final Callback eventsControlUsbCan	= new UsbCanConnectCallback();
-	private final Callback eventsUsbCan			= new UsbCanCallback();
 	private final short	baudrate 				= baudsrate.get(USBCAN_BAUD_500kBit).shortValue();
 
 	enum CanStatus {
@@ -337,7 +338,10 @@ public abstract class UsbCanInterface implements Closeable {
 		handleStates.put(USBCAN_INVALID_HANDLE, 0xff);
 	}
 
-	public UsbCanInterface() {
+	public UsbCanInterface(UcanLibrary usbCanLibrary, Callback eventsUsbCan, Callback eventsControlUsbCan) {
+		this.usbCanLibrary = usbCanLibrary;
+		this.eventsControlUsbCan = eventsControlUsbCan;
+		this.eventsUsbCan = eventsUsbCan;
 		usbCanHandle.setValue( handleStates.get(USBCAN_INVALID_HANDLE).byteValue());
 		initControl();
 		initialize();
@@ -417,12 +421,6 @@ public abstract class UsbCanInterface implements Closeable {
 		}
 	}
 
-	@Override
-	public void close() {
-		shutDown();
-		deInitHardwareControl();
-	}
-
 	private void deInitHardwareControl() {
 		BYTE res =  usbCanLibrary.UcanDeinitHwConnectControl();
 		if (res.intValue() != functionReturnCodes.get(USBCAN_SUCCESSFUL)) {
@@ -430,25 +428,29 @@ public abstract class UsbCanInterface implements Closeable {
 		}
 	}
 
-	protected void writeUsbCanMsgs(Msg[] msgs) {
-		Msg.ByRef canMsgs = new Msg.ByRef(msgs.length);
-		Msg[] arrayCamMsgs = (Msg[])canMsgs.toArray(msgs.length);
-		for(int i=0; i< msgs.length; i++)
-			msgs[i].copyMe(arrayCamMsgs[i]);
+	@Override
+	public void close() {
+		shutDown();
+		deInitHardwareControl();
+	}
+
+	public void writeUsbCanMsgs(List<Msg> msgs) {
+		Msg.ByRef canMsgs = new Msg.ByRef(msgs.size());
+		Msg[] arrayCamMsgs = (Msg[])canMsgs.toArray(msgs.size());
+		for(int i=0; i< msgs.size(); i++)
+			msgs.get(i).copyMe(arrayCamMsgs[i]);
 
       	BYTE res =  usbCanLibrary.UcanWriteCanMsgEx (	new BYTE(usbCanHandle.getValue()),
 									      				new BYTE(channels.get(USBCAN_CHANNEL_CH0)),
 														canMsgs,
-														new DWORDByReference(new DWORD(msgs.length)));
+														new DWORDByReference(new DWORD(msgs.size())));
 
       	if (res.intValue() != functionReturnCodes.get(USBCAN_SUCCESSFUL)) {
       		throw new RuntimeException("UcanWriteCanMsgEx error " + res.intValue());
         }
 	}
 
-	protected abstract void onNewCanMsgs(Msg[] msg, int size);
-
-	private void readUsbCanMsgs() {
+	public List<Msg> readUsbCanMsgs() {
 		final int MAX = 128;
 		DWORDByReference countMsg = new DWORDByReference(new DWORD(MAX));
 		Msg.ByRef canMsgs = new Msg.ByRef(MAX);
@@ -462,10 +464,17 @@ public abstract class UsbCanInterface implements Closeable {
 			throw new RuntimeException("UcanReadCanMsgEx error " + res.intValue());
 		}
 
-		onNewCanMsgs( (Msg[])canMsgs.toArray(MAX), countMsg.getValue().intValue());
+		Msg[] arrayCanMsg =(Msg[])canMsgs.toArray(MAX);
+		int size = countMsg.getValue().intValue();
+
+		List<Msg> listCanMsg = new ArrayList<>(size);
+		for (int i = 0; i < size; i++)
+			listCanMsg.add(arrayCanMsg[i]);
+
+		return listCanMsg;
 	}
 
-	void getMsgCount(IntHolder trMsgCount, IntHolder recMsgCount) {
+	public void getMsgCount(IntHolder trMsgCount, IntHolder recMsgCount) {
 		MsgCountInfo.ByRef msgCount = new MsgCountInfo.ByRef();
 
 		BYTE res = usbCanLibrary.UcanGetMsgCountInfoEx(	new BYTE(usbCanHandle.getValue()),
@@ -536,39 +545,4 @@ public abstract class UsbCanInterface implements Closeable {
 		verRelease.value 	= (version.intValue() & 0xFFFF0000) >> 16;
 	}
 
-	//------------------------------------------------------------------------
-
-	private class UsbCanConnectCallback implements Callback {
-
-    	//void PUBLIC UcanConnectControlFktEx (DWORD dwEvent_p, DWORD dwParam_p, void* pArg_p)
-        public void callback(DWORD event, DWORD param, Pointer arg) {
-			if(event.intValue() 		== events.get(USBCAN_EVENT_CONNECT)) {
-			}
-			else if(event.intValue()	== events.get(USBCAN_EVENT_DISCONNECT)) {
-			}
-			else if(event.intValue() 	== events.get(USBCAN_EVENT_FATALDISCON)) {
-			}
-        }
-    }
-        
-    private class UsbCanCallback implements Callback {
-
-    	//void PUBLIC UcanCallbackFktEx (BYTE UcanHandle_p, DWORD dwEvent_p, BYTE bChannel_p, void* pArg_p)
-        public void callback(BYTE ucanHandle, DWORD event, BYTE channel, Pointer ptr) {
-			if(event.intValue() 		== events.get(USBCAN_EVENT_RECEIVE)) {
-				readUsbCanMsgs();
-			}
-			else if (event.intValue() 	== events.get(USBCAN_EVENT_INITHW)) {
-			}
-			else if(event.intValue() 	== events.get(USBCAN_EVENT_INITCAN)) {
-			}
-			else if(event.intValue() 	== events.get(USBCAN_EVENT_STATUS)) {
-			}
-			else if(event.intValue() 	== events.get(USBCAN_EVENT_DEINITCAN)) {
-			}
-			else if(event.intValue()	 == events.get(USBCAN_EVENT_DEINITHW)) {
-			}
-        }
-    }
-  
 }
