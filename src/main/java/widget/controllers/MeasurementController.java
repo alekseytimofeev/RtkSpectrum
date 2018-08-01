@@ -1,8 +1,9 @@
 package widget.controllers;
 
+import javafx.fxml.FXML;
 import widget.Widget.Parentable;
 
-public class ControlController implements Parentable
+public class MeasurementController implements Parentable
 {
     private RootController parent;
 
@@ -10,4 +11,10 @@ public class ControlController implements Parentable
     public void setParent(RootController parent) {
         this.parent = parent;
     }
+
+    @FXML
+    public void onClickCommandBD() {
+        System.out.println("Command");
+    }
 }
+

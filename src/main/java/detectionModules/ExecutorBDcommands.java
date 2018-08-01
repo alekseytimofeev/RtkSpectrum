@@ -1,25 +1,23 @@
-package executors;
+package detectionModules;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-
-import detectionModules.BDcommand;
 
 public class ExecutorBDcommands  {
 
-    private ExecutorService pool = Executors.newSingleThreadExecutor();
+    private static Object sync = new Object();
+    private static ExecutorService pool = Executors.newSingleThreadExecutor();
 
     private ExecutorBDcommands() {
     }
 
-    public void addComand(BDcommand command) {
-        Future[] tasks = new Future[10];
-        pool.submit(()->);
+    public static void addComand(BDcommand command) {
+        synchronized(sync) {
+            pool.submit(()->command.execute());
+        }
     }
 
-    public void shutDown() {
+    public static void shutDown() {
         pool.shutdown();
     }
-
 }

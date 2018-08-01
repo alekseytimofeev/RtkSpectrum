@@ -1,4 +1,4 @@
-package transferCanMessages;
+package transferMessages;
 
 import java.util.Arrays;
 import java.util.List;
@@ -18,7 +18,7 @@ import com.sun.jna.platform.win32.WinDef.WORDByReference;
 
 public interface UcanLibrary extends Library {
 
-	class Init 			extends Structure {
+    class UcanInit          extends Structure {
 
 		public DWORD	m_dwSize;
 		public BYTE   	m_bMode;
@@ -31,12 +31,12 @@ public interface UcanLibrary extends Library {
 		public WORD   	m_wNrOfRxBufferEntries;
 		public WORD   	m_wNrOfTxBufferEntries;
 
-		public Init(int size) {
+		public UcanInit(int size) {
 			super(new Memory(size));
 			setAlignType(ALIGN_NONE);
 		}
 
-		public Init() {
+		public UcanInit() {
 			super();
 			setAlignType(ALIGN_NONE);
 		}
@@ -55,10 +55,10 @@ public interface UcanLibrary extends Library {
 					"m_wNrOfTxBufferEntries");
 		}
 
-		public static class ByRef extends Init implements ByReference{
+		public static class ByRef extends UcanInit implements ByReference{
 		}
 	}
-	class Msg 			extends Structure {
+	class UcanMsg           extends Structure implements Msg {
 
 		private static int sizeStructure = 18;
 
@@ -75,16 +75,16 @@ public interface UcanLibrary extends Library {
 		public BYTE    m_bData7;
 		public DWORD   m_dwTime;
 
-		public Msg(int size) {
+		public UcanMsg(int size) {
 			super(new Memory(sizeStructure*size));
 			setAlignType(ALIGN_NONE);
 		}
 
-		public Msg() {
+		public UcanMsg() {
 			setAlignType(ALIGN_NONE);
 		}
 
-		public Msg(int id, byte[] data) {
+		public UcanMsg(int id, byte[] data) {
 			super();
 			setAlignType(ALIGN_NONE);
 
@@ -104,7 +104,7 @@ public interface UcanLibrary extends Library {
 			m_bData7.setValue(data[7]);
 		}
 
-		public void copyMe(Msg instance) {
+		public void copyFrom(UcanMsg instance) {
 			instance.m_dwID = this.m_dwID;
 			instance.m_bDLC = this.m_bDLC;
 			instance.m_bData0 = this.m_bData0;
@@ -120,7 +120,7 @@ public interface UcanLibrary extends Library {
 		public void getAllDataCanMsg(IntHolder id, byte[] data) {
 			id.value = m_dwID.intValue();
 
-			if(data.length != 8 ) {
+			if(data.length != 8) {
 				throw new IllegalArgumentException("Length data != 8");
 			}
 
@@ -152,18 +152,17 @@ public interface UcanLibrary extends Library {
 		}
 
 		@Override
-		public String toString()
-		{
-			return "Msg{" +
-					"id: " + m_dwID +
-					", data: " + m_bData0 +
-					" " + m_bData1 +
-					" " + m_bData2 +
-					" " + m_bData3 +
-					" " + m_bData4 +
-					" " + m_bData5 +
-					" " + m_bData6 +
-					" " + m_bData7 +
+		public String toString() {
+			return "UcanMsg{"   +
+					"id: "      + m_dwID +
+					", data: "  + m_bData0 +
+					" "         + m_bData1 +
+					" "         + m_bData2 +
+					" "         + m_bData3 +
+					" "         + m_bData4 +
+					" "         + m_bData5 +
+					" "         + m_bData6 +
+					" "         + m_bData7 +
 					'}';
 		}
 
@@ -183,7 +182,7 @@ public interface UcanLibrary extends Library {
 					"m_dwTime");
 		}
 
-		public static class ByRef extends Msg implements ByReference {
+		public static class ByRef extends UcanMsg implements ByReference {
 
 			public ByRef(int size) {
 				super(sizeStructure*size);
@@ -198,28 +197,28 @@ public interface UcanLibrary extends Library {
 			}
 		}
 	}
-	class MsgCountInfo 	extends Structure {
+	class UcanMsgCountInfo  extends Structure {
 
 		public WORD m_wSentMsgCount;
 		public WORD m_wRecvdMsgCount;
 
-		public MsgCountInfo(int size) {
+		public UcanMsgCountInfo(int size) {
 			super(new Memory(size));
 			setAlignType(ALIGN_NONE);
 		}
 
-		public MsgCountInfo() {
+		public UcanMsgCountInfo() {
 			super();
 			setAlignType(ALIGN_NONE);
 		}
 
 		@Override
 		protected List<String> getFieldOrder() {
-			return Arrays.asList("m_wSentMsgCount",
-					"m_wRecvdMsgCount");
+			return Arrays.asList(	"m_wSentMsgCount",
+									"m_wRecvdMsgCount");
 		}
 
-		public static class ByRef extends MsgCountInfo implements ByReference {
+		public static class ByRef extends UcanMsgCountInfo implements ByReference {
 			public ByRef(int size)
 			{
 				super(size);
@@ -231,28 +230,28 @@ public interface UcanLibrary extends Library {
 			}
 		}
 	}
-	class Status 		extends Structure {
+	class UcanStatus        extends Structure {
 
 		public WORD m_wCanStatus;
 		public WORD m_wUsbStatus;
 
-		public Status(int size) {
+		public UcanStatus(int size) {
 			super(new Memory(size));
 			setAlignType(ALIGN_NONE);
 		}
 
-		public Status() {
+		public UcanStatus() {
 			super();
 			setAlignType(ALIGN_NONE);
 		}
 
 		@Override
 		protected List<String> getFieldOrder() {
-			return Arrays.asList("m_wCanStatus",
-					"m_wUsbStatus");
+			return Arrays.asList(	"m_wCanStatus",
+									"m_wUsbStatus");
 		}
 
-		public static class ByRef extends Status implements ByReference {
+		public static class ByRef extends UcanStatus implements ByReference {
 
 			public ByRef(int size) {
 				super(size);
@@ -277,16 +276,16 @@ public interface UcanLibrary extends Library {
 	BYTE UcanDeinitHardware(BYTE usbCanHandle);
 
     //BYTE UcanInitCanEx2(BYTE UcanHandle_p, BYTE bChannel_p, tUcanInitCanParam* pInitCanParam_p);
-	BYTE UcanInitCanEx2(BYTE usbCanHandle, BYTE channel, Init.ByRef init);
+	BYTE UcanInitCanEx2(BYTE usbCanHandle, BYTE channel, UcanInit.ByRef init);
 
 	//BYTE UcanDeinitCan(tUcanHandle UcanHandle_p, BYTE bChannel_p);
 	BYTE UcanDeinitCanEx(BYTE usbCanHandle, BYTE channel);
 
 	//BYTE UcanGetStatusEx(BYTE UcanHandle_p,  BYTE bChannel_p, tStatusStruct* pStatus_p);
-	BYTE UcanGetStatusEx(BYTE usbCanHandle, BYTE channel, Status.ByRef status);
+	BYTE UcanGetStatusEx(BYTE usbCanHandle, BYTE channel, UcanStatus.ByRef status);
 
 	//BYTE UcanGetMsgCountInfoEx(BYTE UcanHandle_p, BYTE bChannel_p, tUcanMsgCountInfo* pMsgCountInfo_p);
-	BYTE UcanGetMsgCountInfoEx(BYTE usbCanHandle, BYTE channel, MsgCountInfo.ByRef msgCountInfo);
+	BYTE UcanGetMsgCountInfoEx(BYTE usbCanHandle, BYTE channel, UcanMsgCountInfo.ByRef msgCountInfo);
 
 	//BYTE UcanGetCanErrorCounter(BYTE UcanHandle_p, BYTE bChannel_p, DWORD* pdwTxErrorCounter_p, DWORD* pdwRxErrorCounter_p);
 	BYTE UcanGetCanErrorCounter(BYTE usbCanHandle, BYTE channel, DWORDByReference txErrorCounter, DWORDByReference rxErrorCounter);
@@ -295,10 +294,10 @@ public interface UcanLibrary extends Library {
 	BYTE UcanResetCanEx(BYTE usbCanHandle, BYTE channel, DWORD resetFlags);
 
     //BYTE UcanWriteCanMsgEx(tUcanHandle UcanHandle_p, BYTE bChannel_p, tCanMsgStruct* pCanMsg_p, DWORD* pdwCount_p);
-	BYTE UcanWriteCanMsgEx(BYTE usbCanHandle, BYTE channel, Msg.ByRef canMsg, DWORDByReference count);
+	BYTE UcanWriteCanMsgEx(BYTE usbCanHandle, BYTE channel, UcanMsg.ByRef canMsg, DWORDByReference count);
 	
     //BYTE UcanReadCanMsgEx(BYTE UcanHandle_p, BYTE* pbChannel_p, tCanMsgStruct* pCanMsg_p, DWORD* pdwCount_p);
-	BYTE UcanReadCanMsgEx(BYTE usbCanHandle, WORDByReference channel, Msg.ByRef canMsg, DWORDByReference count);
+	BYTE UcanReadCanMsgEx(BYTE usbCanHandle, WORDByReference channel, UcanMsg.ByRef canMsg, DWORDByReference count);
 
 	//DWORD PUBLIC UcanGetVersionEx (tUcanVersionType VerType_p);
 	DWORD UcanGetVersionEx(DWORD verType);

@@ -8,11 +8,14 @@ import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
+import widget.Widget.Parentable;
 
 import java.net.URL;
 import java.util.ResourceBundle;
 
-public class ObservationController implements Initializable{
+public class ObservationController implements Initializable, Parentable{
+
+    private RootController parent;
 
     @FXML
     private LineChart<?, ?> chart;
@@ -71,7 +74,8 @@ public class ObservationController implements Initializable{
     }
 
 
-
-
-
+    @Override
+    public void setParent(RootController parent) {
+        this.parent = parent;
+    }
 }

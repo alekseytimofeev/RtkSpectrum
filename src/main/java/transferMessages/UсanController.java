@@ -1,10 +1,9 @@
-package transferCanMessages;
+package transferMessages;
 
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.LongHolder;
 
 import com.sun.jna.Callback;
-import com.sun.jna.Pointer;
 import com.sun.jna.ptr.ByteByReference;
 
 import com.sun.jna.platform.win32.WinDef.BYTE;
@@ -13,29 +12,28 @@ import com.sun.jna.platform.win32.WinDef.WORD;
 import com.sun.jna.platform.win32.WinDef.DWORDByReference;
 import com.sun.jna.platform.win32.WinDef.WORDByReference;
 
-import transferCanMessages.UcanLibrary.Msg;
-import transferCanMessages.UcanLibrary.Init;
-import transferCanMessages.UcanLibrary.Status;
-import transferCanMessages.UcanLibrary.MsgCountInfo;
+import transferMessages.UcanLibrary.UcanMsg;
+import transferMessages.UcanLibrary.UcanInit;
+import transferMessages.UcanLibrary.UcanStatus;
+import transferMessages.UcanLibrary.UcanMsgCountInfo;
 
-import java.io.Closeable;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static transferCanMessages.UsbCanInterface.Baudrate.*;
-import static transferCanMessages.UsbCanInterface.CanStatus.*;
-import static transferCanMessages.UsbCanInterface.Channel.*;
-import static transferCanMessages.UsbCanInterface.Event.*;
-import static transferCanMessages.UsbCanInterface.FunctionReturnCode.*;
-import static transferCanMessages.UsbCanInterface.HandleState.*;
-import static transferCanMessages.UsbCanInterface.UsbStatus.*;
-import static transferCanMessages.UsbCanInterface.Reset.*;
-import static transferCanMessages.UsbCanInterface.VersionType.*;
+import static transferMessages.UсanController.Baudrate.*;
+import static transferMessages.UсanController.CanStatus.*;
+import static transferMessages.UсanController.Channel.*;
+import static transferMessages.UсanController.Event.*;
+import static transferMessages.UсanController.FunctionReturnCode.*;
+import static transferMessages.UсanController.HandleState.*;
+import static transferMessages.UсanController.UsbStatus.*;
+import static transferMessages.UсanController.Reset.*;
+import static transferMessages.UсanController.VersionType.*;
 
-class UsbCanInterface implements Closeable {
+public class UсanController implements Controller {
 
 	static {
 		initCanStatuses();
@@ -50,8 +48,8 @@ class UsbCanInterface implements Closeable {
 	}
 
 	private final UcanLibrary usbCanLibrary;
-	private final Callback eventsControlUsbCan;
-	private final Callback eventsUsbCan;
+	private final UcanConnectCallback connectUsbCan;
+	private final UcanCallback eventsUsbCan;
 	private final ByteByReference usbCanHandle  = new ByteByReference();
 	private final BYTE usbCanChannel			= new BYTE(channels.get(USBCAN_CHANNEL_CAN1));
 	private final short	baudrate 				= baudsrate.get(USBCAN_BAUD_500kBit).shortValue();
@@ -213,8 +211,8 @@ class UsbCanInterface implements Closeable {
 	}
 	private static void initUsbStatuses() {
 		usbStatuses = new HashMap<>();
-		usbStatuses.put(USBCAN_USBERR_OK, 				0x0000);
-		usbStatuses.put(USBCAN_USBERR_STATUS_TIMEOUT, 	0x2000);
+		usbStatuses.put(USBCAN_USBERR_OK, 					0x0000);
+		usbStatuses.put(USBCAN_USBERR_STATUS_TIMEOUT, 		0x2000);
 		usbStatuses.put(USBCAN_USBERR_WATCHDOG_TIMEOUT, 	0x4000);
 	}
 	private static void initBaudsrate() {
@@ -338,21 +336,19 @@ class UsbCanInterface implements Closeable {
 		handleStates.put(USBCAN_INVALID_HANDLE, 0xff);
 	}
 
-	public UsbCanInterface(UcanLibrary usbCanLibrary, Callback eventsUsbCan, Callback eventsControlUsbCan) {
+	public UсanController(UcanLibrary usbCanLibrary,
+                          UcanCallback eventsUsbCan,
+                          UcanConnectCallback connectUsbCan) {
 		this.usbCanLibrary = usbCanLibrary;
-		this.eventsControlUsbCan = eventsControlUsbCan;
+		this.connectUsbCan = connectUsbCan;
 		this.eventsUsbCan = eventsUsbCan;
-		usbCanHandle.setValue( handleStates.get(USBCAN_INVALID_HANDLE).byteValue());
-		initControl();
+		usbCanHandle.setValue(handleStates.get(USBCAN_INVALID_HANDLE).byteValue());
+        initHardwareControl();
 		initialize();
 	}
 
-	private void initControl() {
-		initHardwareControl();
-	}
-
-	private void initHardwareControl() {
-		BYTE res = usbCanLibrary.UcanInitHwConnectControlEx(eventsControlUsbCan, null);
+    private void initHardwareControl() {
+		BYTE res = usbCanLibrary.UcanInitHwConnectControlEx(connectUsbCan, null);
 		if (res.intValue() != functionReturnCodes.get(USBCAN_SUCCESSFUL)) {
 			//TODO Logger!
 			throw new RuntimeException("UcanInitHwConnectControlEx error " + res.intValue());
@@ -377,7 +373,7 @@ class UsbCanInterface implements Closeable {
 
 	private void initCan() {
 		byte[] bytesValue = ByteBuffer.allocate(Short.BYTES).putShort(baudrate).array();
-		Init.ByRef param = new Init.ByRef();
+		UcanInit.ByRef param = new UcanInit.ByRef();
 		param.m_dwSize               = new DWORD(0x18);
 		param.m_bMode                = new BYTE(0x00);
 		param.m_bBTR0                = new BYTE(bytesValue[0]);
@@ -428,17 +424,17 @@ class UsbCanInterface implements Closeable {
 		}
 	}
 
-	@Override
 	public void close() {
 		shutDown();
 		deInitHardwareControl();
 	}
 
-	public void writeUsbCanMsgs(List<Msg> msgs) {
-		Msg.ByRef canMsgs = new Msg.ByRef(msgs.size());
-		Msg[] arrayCamMsgs = (Msg[])canMsgs.toArray(msgs.size());
+    @Override
+	public void writeMsgs(List<? extends Msg> msgs) {
+		UcanMsg.ByRef canMsgs = new UcanMsg.ByRef(msgs.size());
+		UcanMsg[] arrayCamMsgs = (UcanMsg[])canMsgs.toArray(msgs.size());
 		for(int i=0; i< msgs.size(); i++)
-			msgs.get(i).copyMe(arrayCamMsgs[i]);
+            ((UcanMsg)msgs.get(i)).copyFrom(arrayCamMsgs[i]);
 
       	BYTE res =  usbCanLibrary.UcanWriteCanMsgEx (	new BYTE(usbCanHandle.getValue()),
 									      				new BYTE(channels.get(USBCAN_CHANNEL_CH0)),
@@ -450,10 +446,11 @@ class UsbCanInterface implements Closeable {
         }
 	}
 
-	public List<Msg> readUsbCanMsgs() {
+	@Override
+	public List<? extends Msg> readMsgs() {
 		final int MAX = 128;
 		DWORDByReference countMsg = new DWORDByReference(new DWORD(MAX));
-		Msg.ByRef canMsgs = new Msg.ByRef(MAX);
+		UcanMsg.ByRef canMsgs = new UcanMsg.ByRef(MAX);
 
 		BYTE res =  usbCanLibrary.UcanReadCanMsgEx(	new BYTE(usbCanHandle.getValue()),
 													new WORDByReference(new WORD( usbCanChannel.longValue())),
@@ -464,10 +461,10 @@ class UsbCanInterface implements Closeable {
 			throw new RuntimeException("UcanReadCanMsgEx error " + res.intValue());
 		}
 
-		Msg[] arrayCanMsg =(Msg[])canMsgs.toArray(MAX);
+		UcanMsg[] arrayCanMsg =(UcanMsg[])canMsgs.toArray(MAX);
 		int size = countMsg.getValue().intValue();
 
-		List<Msg> listCanMsg = new ArrayList<>(size);
+		List<UcanMsg> listCanMsg = new ArrayList<>(size);
 		for (int i = 0; i < size; i++)
 			listCanMsg.add(arrayCanMsg[i]);
 
@@ -475,7 +472,7 @@ class UsbCanInterface implements Closeable {
 	}
 
 	public void getMsgCount(IntHolder trMsgCount, IntHolder recMsgCount) {
-		MsgCountInfo.ByRef msgCount = new MsgCountInfo.ByRef();
+		UcanMsgCountInfo.ByRef msgCount = new UcanMsgCountInfo.ByRef();
 
 		BYTE res = usbCanLibrary.UcanGetMsgCountInfoEx(	new BYTE(usbCanHandle.getValue()),
 														usbCanChannel,
@@ -501,7 +498,7 @@ class UsbCanInterface implements Closeable {
 	 }
 
 	public void getStatus(IntHolder statusCan, IntHolder statusUsb)  {
-		Status.ByRef status = new Status.ByRef();
+		UcanStatus.ByRef status = new UcanStatus.ByRef();
 
 		BYTE res =  usbCanLibrary.UcanGetStatusEx(	new BYTE(usbCanHandle.getValue()),
 													usbCanChannel,

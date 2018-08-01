@@ -1,7 +1,9 @@
 package detectionModules;
 
-import transferCanMessages.TransferCanMsgs;
-import transferCanMessages.UcanLibrary.Msg;
+import transferMessages.Msg;
+import transferMessages.TransferCanMsgs;
+import transferMessages.UcanLibrary;
+import transferMessages.UcanLibrary.UcanMsg;
 
 import java.nio.ByteBuffer;
 import java.util.*;
@@ -14,8 +16,8 @@ import static detectionModules.BDcontroller.Command.*;
 import static detectionModules.BDcontroller.TypeMsg.*;
 
 
-public abstract class BDcontroller
-{
+public abstract class BDcontroller {
+
     static {
         initParameters();
         initOperatingModes();
@@ -182,7 +184,7 @@ public abstract class BDcontroller
         return -1;
     }
 
-    private void parsingMsg(Msg msg) {
+    private void parsingMsg(UcanLibrary.UcanMsg msg) {
         parsing.parsingMsg(msg);
         byte commandCode = parsing.getCommandCode();
         TypeMsg typeMsg = parsing.getTypeMsg();
@@ -228,9 +230,6 @@ public abstract class BDcontroller
 
 
     //------------------------
-    public void addComand(BDcommand command) {
-        command.execute();
-    }
 
     public BDcommand getCommandGetParameter(byte logicNumber, Parameter parameter) {
         return new GetParameter(this, logicNumber, parameter);
@@ -252,25 +251,21 @@ public abstract class BDcontroller
         return new StopMeasure(this, logicNumber);
     }
 
-
-
-
     public void readMsgs() {
-        List<Msg> msgs = transferCanMsg.subFromReceiveCanMsgs();
-        for (Msg msg: msgs) {
-            parsingMsg(msg);
-        }
+        List<? extends Msg> msgs = transferCanMsg.subFromReceiveMsgs();
+        for (Msg msg: msgs)
+            parsingMsg((UcanMsg) msg);
     }
 
-    private void writeMsgs(List<Msg> msgs) {
+    private void writeMsgs(List<UcanLibrary.UcanMsg> msgs) {
         parsingMsg(msgs.get(0));
         transferCanMsg.addToTransmitMsgs(msgs);
     }
 
     protected void setLogicalNumber(int serialNumber, byte logicNumber) {
         byte[] bytesSerialNumber = ByteBuffer.allocate(4).putInt(serialNumber).array();
-        List<Msg> msgs = new ArrayList<>();
-        msgs.add(new Msg(idManagement,
+        List<UcanLibrary.UcanMsg> msgs = new ArrayList<>();
+        msgs.add(new UcanLibrary.UcanMsg(idManagement,
                     new byte[] {
                         commandsCodes.get(SET_LOGIC_NUMBER),
                         logicNumber,
@@ -284,8 +279,8 @@ public abstract class BDcontroller
     }
 
     protected void setState(byte logicNumber, State state) {
-        List<Msg> msgs = new ArrayList<>();
-        msgs.add(new Msg(idManagement + logicNumber,
+        List<UcanLibrary.UcanMsg> msgs = new ArrayList<>();
+        msgs.add(new UcanLibrary.UcanMsg(idManagement + logicNumber,
                     new byte[] {
                         commandsCodes.get(SET_STATE),
                         statesCodes.get(state),
@@ -300,8 +295,8 @@ public abstract class BDcontroller
 
     protected void setParameter(byte logicNumber, Parameter parameter, int value) {
         byte[] bytesValue = ByteBuffer.allocate(Integer.BYTES).putInt(value).array();
-        List<Msg> msgs = new ArrayList<>();
-        msgs.add(new Msg(idManagement + logicNumber,
+        List<UcanLibrary.UcanMsg> msgs = new ArrayList<>();
+        msgs.add(new UcanLibrary.UcanMsg(idManagement + logicNumber,
                     new byte[] {
                         commandsCodes.get(SET_PARAMETER),
                         parameterCodes.get(parameter),
@@ -314,8 +309,8 @@ public abstract class BDcontroller
     }
 
     protected void getParameter( byte logicNumber, Parameter parameter) {
-        List<Msg> msgs = new ArrayList<>();
-        msgs.add(new Msg(idManagement + logicNumber,
+        List<UcanLibrary.UcanMsg> msgs = new ArrayList<>();
+        msgs.add(new UcanLibrary.UcanMsg(idManagement + logicNumber,
                     new byte[] {
                         commandsCodes.get(GET_PARAMETER),
                         parameterCodes.get(parameter),
@@ -329,8 +324,8 @@ public abstract class BDcontroller
     }
 
     protected void calibration(byte logicNumber){
-        List<Msg> msgs = new ArrayList<>();
-        msgs.add(new Msg(idManagement + logicNumber,
+        List<UcanMsg> msgs = new ArrayList<>();
+        msgs.add(new UcanLibrary.UcanMsg(idManagement + logicNumber,
                     new byte[] {
                         commandsCodes.get(CALIBRATION),
                         0,
@@ -344,8 +339,8 @@ public abstract class BDcontroller
     }
 
     protected void measure(byte logicNumber, boolean start) {
-        List<Msg> msgs = new ArrayList<>();
-        msgs.add(new Msg(idManagement + logicNumber,
+        List<UcanLibrary.UcanMsg> msgs = new ArrayList<>();
+        msgs.add(new UcanLibrary.UcanMsg(idManagement + logicNumber,
                     new byte[] {
                         commandsCodes.get(MEASURE),
                         (byte) (start ? 1 : 0),

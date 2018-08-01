@@ -3,7 +3,7 @@ package detectionModules;
 import detectionModules.BDcontroller.TypeMsg;
 
 
-import transferCanMessages.UcanLibrary.Msg;
+import transferMessages.UcanLibrary.UcanMsg;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -44,7 +44,7 @@ public class Parsing {
         this.idReply = idReply;
     }
 
-    public void parsingMsg(Msg msg) {
+    public void parsingMsg(UcanMsg msg) {
         typeMsg = getTypeMsgById(msg.getIdCanMsg());
         if(typeMsg == UNKNOWN)
             throw new IllegalArgumentException("Ошибка парсинга can сообщения. Не известный тип сообщения. " +  msg);
@@ -74,7 +74,7 @@ public class Parsing {
         log.append(Arrays.toString(msg.getDataCanMsg()) + "\t");
     }
 
-    private void parsingMsgBySetLogicNumber(TypeMsg typeMsg, Msg msg) {
+    private void parsingMsgBySetLogicNumber(TypeMsg typeMsg, UcanMsg msg) {
         byte[] dataCanMsg = msg.getDataCanMsg();
         if(typeMsg == REPLY) {
             logicNumber = getLogicNumberFromDataCanData(dataCanMsg);
@@ -82,7 +82,7 @@ public class Parsing {
         addLogBySetLogicNumber(typeMsg, dataCanMsg);
     }
 
-    private void parsingMsgBySetState(TypeMsg typeMsg, Msg msg) {
+    private void parsingMsgBySetState(TypeMsg typeMsg, UcanMsg msg) {
         byte[] dataCanMsg = msg.getDataCanMsg();
         if(typeMsg == REPLY) {
             operatingModeCode = getOperatingModeCodeFromDataCanMsg(dataCanMsg);
@@ -93,7 +93,7 @@ public class Parsing {
         addLogBySetState(typeMsg, dataCanMsg);
     }
 
-    private void parsingMsgBySetParameter(TypeMsg typeMsg, Msg msg) {
+    private void parsingMsgBySetParameter(TypeMsg typeMsg, UcanMsg msg) {
         byte[] dataCanMsg = msg.getDataCanMsg();
         if( typeMsg == REPLY) {
             parameterCode = getParameterCodeFromDataCanMsg(dataCanMsg);
@@ -105,19 +105,19 @@ public class Parsing {
         addLogBySetParameter(typeMsg, dataCanMsg);
     }
 
-    private void parsingMsgByGetParameter(TypeMsg typeMsg, Msg msg) {
+    private void parsingMsgByGetParameter(TypeMsg typeMsg, UcanMsg msg) {
         byte[] dataCanMsg = msg.getDataCanMsg();
         addLogByGetParameter(typeMsg, dataCanMsg);
     }
 
-    private void parsingMsgByCalibration(TypeMsg typeMsg, Msg msg) {
+    private void parsingMsgByCalibration(TypeMsg typeMsg, UcanMsg msg) {
         if(typeMsg == MANAGEMENT) {
         }
         else if(typeMsg == REPLY) {
         }
     }
 
-    private void parsingMsgByMeasure(TypeMsg typeMsg, Msg msg) {
+    private void parsingMsgByMeasure(TypeMsg typeMsg, UcanMsg msg) {
         if(typeMsg == MANAGEMENT) {
         }
         else if(typeMsg == REPLY) {

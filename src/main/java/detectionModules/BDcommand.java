@@ -2,7 +2,7 @@ package detectionModules;
 
 import detectionModules.BDcontroller.*;
 
-abstract class BDcommand {
+abstract public class BDcommand {
     protected abstract void execute();
 }
 
