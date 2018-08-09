@@ -1,10 +1,10 @@
 package widget.controllers;
 
 import javafx.fxml.FXML;
-import widget.Widget.Parentable;
+import widget.Parentable;
 
-public class MeasurementController implements Parentable
-{
+public class MeasurementController implements Parentable {
+
     private RootController parent;
 
     @Override

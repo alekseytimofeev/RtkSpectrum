@@ -13,20 +13,9 @@ import widget.controllers.*;
 
 import java.io.IOException;
 
+import static widget.controllers.RootController.*;
+
 public class Widget extends Application {
-
-    public static RootController    rootController;
-
-    private HeaderController        headerController;
-
-    private ControlController       controlController;
-    private MeasurementController   measurementController;
-    private ObservationController   observationController;
-    private StorageController       storageController;
-    private DataBaseController      dataBaseController;
-    private ProcessingController    processingController;
-    private IdealModelsController   idealModelsController;
-    private ParametersController    parametersController;
 
     public static void initialize(String[] args) {
         System.out.println("Widget initialize\t" + Thread.currentThread().getName());
@@ -34,92 +23,27 @@ public class Widget extends Application {
     }
 
     @Override
-    public void start(Stage primaryStage) throws IOException {
-
+    public void start(Stage primaryStage)  {
         System.out.println("Widget start\t" + Thread.currentThread().getName());
-
-        Class<? extends Widget> aClass = getClass();
-        FXMLLoader loader = new FXMLLoader(aClass.getResource("../../resources/fxml/Root.fxml"));
-        Pane rootPane = loader.load();
-        rootController = loader.getController();
-
-        loader = new FXMLLoader(aClass.getResource("../../resources/fxml/Header.fxml"));
-        Pane headerPane = loader.load();
-        headerController = loader.getController();
-
-        loader = new FXMLLoader(aClass.getResource("../../resources/fxml/Control.fxml"));
-        Pane controlPane = loader.load();
-        controlController = loader.getController();
-        controlController.setParent(rootController);
-        rootController.addChild(controlController);
-
-        loader = new FXMLLoader(aClass.getResource("../../resources/fxml/Measurement.fxml"));
-        Pane measurementPane = loader.load();
-        measurementController = loader.getController();
-        measurementController.setParent(rootController);
-        rootController.addChild(measurementController);
-
-        loader = new FXMLLoader(aClass.getResource("../../resources/fxml/Observation.fxml"));
-        Pane observationPane = loader.load();
-        observationController = loader.getController();
-        observationController.setParent(rootController);
-        rootController.addChild(observationController);
-
-        loader = new FXMLLoader(aClass.getResource("../../resources/fxml/Storage.fxml"));
-        Pane storagePane = loader.load();
-        storageController = loader.getController();
-        storageController.setParent(rootController);
-        rootController.addChild(storageController);
-
-        loader = new FXMLLoader(aClass.getResource("../../resources/fxml/DataBase.fxml"));
-        Pane dataBasePane = loader.load();
-        dataBaseController = loader.getController();
-        dataBaseController.setParent(rootController);
-        rootController.addChild(dataBaseController);
-
-        loader = new FXMLLoader(aClass.getResource("../../resources/fxml/Processing.fxml"));
-        Pane processingPane = loader.load();
-        processingController = loader.getController();
-        processingController.setParent(rootController);
-        rootController.addChild(processingController);
-
-        loader = new FXMLLoader(aClass.getResource("../../resources/fxml/IdealModels.fxml"));
-        Pane idealModelsPane = loader.load();
-        idealModelsController = loader.getController();
-        idealModelsController.setParent(rootController);
-        rootController.addChild(idealModelsController);
-
-        loader = new FXMLLoader(aClass.getResource("../../resources/fxml/Parameters.fxml"));
-        Pane parametersPane = loader.load();
-        parametersController = loader.getController();
-        parametersController.setParent(rootController);
-        rootController.addChild(parametersController);
-
+        PaneAndController paneAndController = getRootPane();
+        Pane rootPane = paneAndController.pane;
+        RootController rootController = (RootController) paneAndController.controller;
         rootPane.getChildren().forEach(node -> {
             String id = node.getId();
             if (id != null) {
                 if (id.equals("tabs") && node instanceof TabPane) {
                     ObservableList<Tab> tabs = ((TabPane) node).getTabs();
-                    Tab controlTab = new Tab("Контроль", controlPane);
-                    Tab measurementTab = new Tab("Измерение", measurementPane);
-                    Tab observationTab = new Tab("Наблюдение", observationPane);
-                    Tab storageTab = new Tab("Хранение", storagePane);
-                    Tab dataBaseTab = new Tab("База", dataBasePane);
-                    Tab processingTab = new Tab("Обработка", processingPane);
-                    Tab idealModelsTab = new Tab("Эталоны", idealModelsPane);
-                    Tab parametersTab = new Tab("Параметры", parametersPane);
-
-                    tabs.add(controlTab);
-                    tabs.add(measurementTab);
-                    tabs.add(observationTab);
-                    tabs.add(storageTab);
-                    tabs.add(dataBaseTab);
-                    tabs.add(processingTab);
-                    tabs.add(idealModelsTab);
-                    tabs.add(parametersTab);
+                    tabs.add(new Tab("Контроль",    getControlPane(rootController).pane));
+                    tabs.add(new Tab("Измерение",   getMeasurePane(rootController).pane));
+                    tabs.add(new Tab("Наблюдение",  getObservationPane(rootController).pane));
+                    tabs.add(new Tab("Хранение",    getStoragePane(rootController).pane));
+                    tabs.add(new Tab("База",        getBasePane(rootController).pane));
+                    tabs.add(new Tab("Обработка",   getProcessingPane(rootController).pane));
+                    tabs.add(new Tab("Эталоны",     getIdealModelsPane(rootController).pane));
+                    tabs.add(new Tab("Параметры",   getParametersPane(rootController).pane));
                 }
                 else if (id.equals("header") && node instanceof StackPane) {
-                    ((StackPane) node).getChildren().add(headerPane);
+                    ((StackPane) node).getChildren().add(getHeaderPane().pane);
                 }
             }
         });
@@ -130,12 +54,165 @@ public class Widget extends Application {
         primaryStage.show();
     }
 
-    @Override
-    public void stop() throws Exception {
-        System.out.println("Widget stop\t" + Thread.currentThread().getName());
+
+    private PaneAndController getRootPane() {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("../../resources/fxml/Root.fxml"));
+        Pane rootPane = null;
+        try {
+            rootPane = loader.load();
+        }
+        catch(IOException e) {
+            e.printStackTrace();
+        }
+        RootController rootController = loader.getController();
+        return new PaneAndController(rootPane, rootController);
+    }
+    private PaneAndController getHeaderPane() {
+        FXMLLoader loader;
+        loader = new FXMLLoader(getClass().getResource("../../resources/fxml/Header.fxml"));
+        Pane headerPane = null;
+        try {
+            headerPane = loader.load();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        HeaderController headerController = loader.getController();
+        return  new PaneAndController(headerPane, headerController);
+    }
+    private PaneAndController getControlPane(RootController rootController) {
+        FXMLLoader loader;
+        loader = new FXMLLoader(getClass().getResource("../../resources/fxml/Control.fxml"));
+        Pane controlPane = null;
+        try {
+            controlPane = loader.load();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        ControlController controlController = loader.getController();
+        controlController.setParent(rootController);
+        rootController.addChild(CONTROL_PANE_NAME, controlController);
+        return new PaneAndController(controlPane,controlController);
+    }
+    private PaneAndController getMeasurePane(RootController rootController) {
+        FXMLLoader loader;
+        loader = new FXMLLoader(getClass().getResource("../../resources/fxml/Measurement.fxml"));
+        Pane measurementPane = null;
+        try {
+            measurementPane = loader.load();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        MeasurementController measurementController = loader.getController();
+        measurementController.setParent(rootController);
+        rootController.addChild(MEASUREMENT_PANE_NAME, measurementController);
+        return new PaneAndController(measurementPane, measurementController);
+    }
+    private PaneAndController getObservationPane(RootController rootController) {
+        FXMLLoader loader;
+        loader = new FXMLLoader(getClass().getResource("../../resources/fxml/Observation.fxml"));
+        Pane observationPane = null;
+        try {
+            observationPane = loader.load();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        ObservationController observationController = loader.getController();
+        observationController.setParent(rootController);
+        rootController.addChild(OBSERVATION_PANE_NAME, observationController);
+        return new PaneAndController(observationPane,observationController);
+    }
+    private PaneAndController getStoragePane(RootController rootController) {
+        FXMLLoader loader;
+        loader = new FXMLLoader(getClass().getResource("../../resources/fxml/Storage.fxml"));
+        Pane storagePane = null;
+        try {
+            storagePane = loader.load();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        StorageController storageController = loader.getController();
+        storageController.setParent(rootController);
+        rootController.addChild(STORAGE_PANE_NAME, storageController);
+        return new PaneAndController(storagePane, storageController);
+    }
+    private PaneAndController getBasePane(RootController rootController) {
+        FXMLLoader loader;
+        loader = new FXMLLoader(getClass().getResource("../../resources/fxml/DataBase.fxml"));
+        Pane dataBasePane = null;
+        try {
+            dataBasePane = loader.load();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        DataBaseController dataBaseController = loader.getController();
+        dataBaseController.setParent(rootController);
+        rootController.addChild(DATA_BASE_PANE_NAME, dataBaseController);
+        return new PaneAndController(dataBasePane, dataBaseController);
+    }
+    private PaneAndController getProcessingPane(RootController rootController) {
+        FXMLLoader loader;
+        loader = new FXMLLoader(getClass().getResource("../../resources/fxml/Processing.fxml"));
+        Pane processingPane = null;
+        try {
+            processingPane = loader.load();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        ProcessingController processingController = loader.getController();
+        processingController.setParent(rootController);
+        rootController.addChild(PROCESSING_PANE_NAME, processingController);
+        return new PaneAndController(processingPane, processingController);
+    }
+    private PaneAndController getIdealModelsPane(RootController rootController) {
+        FXMLLoader loader;
+        loader = new FXMLLoader(getClass().getResource("../../resources/fxml/IdealModels.fxml"));
+        Pane idealModelsPane = null;
+        try {
+            idealModelsPane = loader.load();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        IdealModelsController idealModelsController = loader.getController();
+        idealModelsController.setParent(rootController);
+        rootController.addChild(IDEAL_MODELS_PANE_NAME, idealModelsController);
+        return new PaneAndController(idealModelsPane, idealModelsController);
+    }
+    private PaneAndController getParametersPane(RootController rootController) {
+        FXMLLoader loader;
+        loader = new FXMLLoader(getClass().getResource("../../resources/fxml/Parameters.fxml"));
+        Pane parametersPane = null;
+        try {
+            parametersPane = loader.load();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        ParametersController parametersController = loader.getController();
+        parametersController.setParent(rootController);
+        rootController.addChild(PARAMETERS_PANE_NAME, parametersController);
+        return new PaneAndController(parametersPane, parametersController);
     }
 
-    public interface Parentable {
-        void setParent(RootController parent);
+    private static class PaneAndController {
+        Pane pane;
+        Object controller;
+
+        public PaneAndController(Pane pane, Object controller) {
+            this.pane = pane;
+            this.controller = controller;
+        }
+    }
+
+    @Override
+    public void stop() {
+        System.out.println("Widget stop\t" + Thread.currentThread().getName());
     }
 }

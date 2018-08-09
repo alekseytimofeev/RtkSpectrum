@@ -19,6 +19,7 @@ public class TransferCanMsgs implements TransferMsgs {
 	}
 
 	//------------------------------------receive
+
     @Override
     public void addToReceiveMsgs() {
         List<? extends Msg> msgs = controller.readMsgs();

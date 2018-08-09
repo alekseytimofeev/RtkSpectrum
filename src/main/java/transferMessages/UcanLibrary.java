@@ -117,7 +117,7 @@ public interface UcanLibrary extends Library {
 			instance.m_bData7 = this.m_bData7;
 		}
 
-		public void getAllDataCanMsg(IntHolder id, byte[] data) {
+		public void getAllData(IntHolder id, byte[] data) {
 			id.value = m_dwID.intValue();
 
 			if(data.length != 8) {
@@ -134,11 +134,11 @@ public interface UcanLibrary extends Library {
 			data[7] = m_bData7.byteValue();
 		}
 
-		public int getIdCanMsg() {
+		public int getId() {
 			return m_dwID.intValue();
 		}
 
-		public byte[] getDataCanMsg () {
+		public byte[] getData() {
 			byte[] data = new byte[8];
 			data[0] = m_bData0.byteValue();
 			data[1] = m_bData1.byteValue();

@@ -1,6 +1,7 @@
 package detectionModules;
 
-import detectionModules.BDcontroller.*;
+import static detectionModules.Feature.Parameter;
+import static detectionModules.Feature.State;
 
 abstract public class BDcommand {
     protected abstract void execute();

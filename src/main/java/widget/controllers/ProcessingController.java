@@ -1,6 +1,6 @@
 package widget.controllers;
 
-import widget.Widget.Parentable;
+import widget.Parentable;
 
 public class ProcessingController implements Parentable {
     private RootController parent;

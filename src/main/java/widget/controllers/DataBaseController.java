@@ -1,6 +1,6 @@
 package widget.controllers;
 
-import widget.Widget.Parentable;
+import widget.Parentable;
 
 public class DataBaseController implements Parentable {
 
