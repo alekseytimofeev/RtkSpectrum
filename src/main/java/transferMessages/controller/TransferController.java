@@ -1,4 +1,6 @@
-package transferMessages;
+package transferMessages.controller;
+
+import transferMessages.transfer.Msg;
 
 import java.util.List;
 

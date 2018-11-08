@@ -4,6 +4,9 @@ import com.sun.jna.Callback;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.WinDef.*;
 
+import static transferMessages.Features.events;
+import static transferMessages.Features.Event.*;
+
 public abstract class UcanCallback implements Callback {
 
     abstract void onEventReceive();
@@ -15,22 +18,22 @@ public abstract class UcanCallback implements Callback {
 
     //void PUBLIC UcanCallbackFktEx (BYTE UcanHandle_p, DWORD dwEvent_p, BYTE bChannel_p, void* pArg_p)
     public void callback(BYTE ucanHandle, DWORD event, BYTE channel, Pointer ptr) {
-        if(event.intValue() 		== UсanController.events.get(UсanController.Event.USBCAN_EVENT_RECEIVE)) {
+        if(event.intValue() 		== events.get(USBCAN_EVENT_RECEIVE)) {
             onEventReceive();
         }
-        else if (event.intValue() 	== UсanController.events.get(UсanController.Event.USBCAN_EVENT_INITHW)) {
+        else if (event.intValue() 	== events.get(USBCAN_EVENT_INITHW)) {
             onEventInitHw();
         }
-        else if(event.intValue() 	== UсanController.events.get(UсanController.Event.USBCAN_EVENT_INITCAN)) {
+        else if(event.intValue() 	== events.get(USBCAN_EVENT_INITCAN)) {
             onEventInitCan();
         }
-        else if(event.intValue() 	== UсanController.events.get(UсanController.Event.USBCAN_EVENT_STATUS)) {
+        else if(event.intValue() 	== events.get(USBCAN_EVENT_STATUS)) {
             onEventStatus();
         }
-        else if(event.intValue() 	== UсanController.events.get(UсanController.Event.USBCAN_EVENT_DEINITCAN)) {
+        else if(event.intValue() 	== events.get(USBCAN_EVENT_DEINITCAN)) {
             onEventDeInitCan();
         }
-        else if(event.intValue()	== UсanController.events.get(UсanController.Event.USBCAN_EVENT_DEINITHW)) {
+        else if(event.intValue()	== events.get(USBCAN_EVENT_DEINITHW)) {
             onEventDeInitHw();
         }
     }

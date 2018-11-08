@@ -1,5 +1,9 @@
 package transferMessages;
 
+import detectionModules.BDcommands.ReadMessage;
+import detectionModules.BDcontroller;
+import detectionModules.ExecutorBDcommands;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -9,13 +13,17 @@ import java.util.Queue;
 public class TransferCanMsgs implements TransferMsgs {
 
 	private final Controller controller;
+
+    private final BDcontroller bdController;
+
 	private Queue<Msg> transmitMsgs = new LinkedList<>();
 	private Queue<Msg> receiveMsgs = new LinkedList<>();
 	private int countTrMsg;
 	private int countRecMsg;
 
-	public TransferCanMsgs(Controller controller) {
+	public TransferCanMsgs(Controller controller, BDcontroller bdController) {
         this.controller = controller;
+        this.bdController = bdController;
 	}
 
 	//------------------------------------receive
@@ -28,6 +36,8 @@ public class TransferCanMsgs implements TransferMsgs {
             System.out.println("New receive msg:" + msg);
         }
 		countRecMsg += msgs.size();
+
+        ExecutorBDcommands.addComand(new ReadMessage(bdController));
 	}
 
     @Override

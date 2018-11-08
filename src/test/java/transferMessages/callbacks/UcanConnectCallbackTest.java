@@ -3,12 +3,13 @@ package transferMessages;
 import com.sun.jna.platform.win32.WinDef.*;
 import org.junit.Before;
 import org.junit.Test;
+import transferMessages.callbacks.UcanConnectCallback;
 
 import static org.junit.Assert.assertEquals;
-import static transferMessages.UсanController.Event.USBCAN_EVENT_CONNECT;
-import static transferMessages.UсanController.Event.USBCAN_EVENT_DISCONNECT;
-import static transferMessages.UсanController.Event.USBCAN_EVENT_FATALDISCON;
-import static transferMessages.UсanController.events;
+import static transferMessages.controller.UсanController.Event.USBCAN_EVENT_CONNECT;
+import static transferMessages.controller.UсanController.Event.USBCAN_EVENT_DISCONNECT;
+import static transferMessages.controller.UсanController.Event.USBCAN_EVENT_FATALDISCON;
+import static transferMessages.controller.UсanController.events;
 
 public class UcanConnectCallbackTest {
 

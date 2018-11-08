@@ -3,10 +3,12 @@ package transferMessages;
 import com.sun.jna.platform.win32.WinDef;
 import org.junit.Before;
 import org.junit.Test;
+import transferMessages.callbacks.UcanCallback;
 
 import static org.junit.Assert.assertEquals;
-import static transferMessages.UсanController.Event.*;
-import static transferMessages.UсanController.events;
+import static transferMessages.controller.Features.Event.USBCAN_EVENT_DEINITCAN;
+import static transferMessages.controller.Features.Event.USBCAN_EVENT_INITHW;
+import static transferMessages.controller.Features.Event.USBCAN_EVENT_RECEIVE;
 
 public class UcanCallbackTest {
 
@@ -54,7 +56,8 @@ public class UcanCallbackTest {
     }
 
 
-    public static class EventsUcan extends UcanCallback {
+    public static class EventsUcan extends UcanCallback
+    {
 
         private String nameCallbackMethod;
 

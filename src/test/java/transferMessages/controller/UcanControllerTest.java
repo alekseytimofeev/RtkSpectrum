@@ -7,23 +7,29 @@ import org.junit.Test;
 
 
 import static org.mockito.Mockito.*;
-import static transferMessages.UсanController.*;
-import static transferMessages.UсanController.Baudrate.*;
-import static transferMessages.UсanController.CanStatus.*;
-import static transferMessages.UсanController.Channel.*;
-import static transferMessages.UсanController.Event.*;
-import static transferMessages.UсanController.FunctionReturnCode.*;
-import static transferMessages.UсanController.Reset.*;
-import static transferMessages.UсanController.UsbStatus.*;
-import static transferMessages.UсanController.VersionType.*;
+import static transferMessages.controller.Features.*;
+import static transferMessages.controller.Features.Baudrate.*;
+import static transferMessages.controller.Features.CanStatus.*;
+import static transferMessages.controller.Features.Channel.*;
+import static transferMessages.controller.Features.Event.*;
+import static transferMessages.controller.Features.FunctionReturnCode.*;
+import static transferMessages.controller.Features.Reset.*;
+import static transferMessages.controller.Features.UsbStatus.*;
+import static transferMessages.controller.Features.VersionType.*;
+
 
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.LongHolder;
-import transferMessages.UcanLibrary.UcanInit;
-import transferMessages.UcanLibrary.UcanStatus;
-import transferMessages.UcanLibrary.UcanMsgCountInfo;
+import transferMessages.controller.Features;
+import transferMessages.controller.UcanLibrary;
+import transferMessages.controller.UcanLibrary.UcanInit;
+import transferMessages.controller.UcanLibrary.UcanStatus;
+import transferMessages.controller.UcanLibrary.UcanMsgCountInfo;
 
 import com.sun.jna.platform.win32.WinDef.*;
+import transferMessages.callbacks.UcanCallback;
+import transferMessages.callbacks.UcanConnectCallback;
+import transferMessages.controller.UсanController;
 
 public class UcanControllerTest {
 
@@ -155,7 +161,7 @@ public class UcanControllerTest {
         IntHolder verMajor = new IntHolder();
         IntHolder verMinor = new IntHolder();
         IntHolder verRelease = new IntHolder();
-        VersionType type =K_VER_TYPE_USER_DLL;
+        Features.VersionType type =K_VER_TYPE_USER_DLL;
 
         controller.getVersion(verMajor, verMinor, verRelease, type);
         verify(usbCanLibrary, times(1)).UcanGetVersionEx(any(DWORD.class));

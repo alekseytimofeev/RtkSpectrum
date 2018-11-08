@@ -1,6 +1,5 @@
 package transferMessages;
 
-import com.sun.jna.platform.win32.WinDef;
 import org.junit.Assert;
 import org.junit.Before;
 
@@ -16,7 +15,10 @@ import com.sun.jna.platform.win32.WinDef.BYTE;
 import com.sun.jna.platform.win32.WinDef.DWORD;
 
 import org.junit.Test;
-import transferMessages.UcanLibrary.UcanMsg;
+import transferMessages.controller.UcanLibrary.UcanMsg;
+import transferMessages.controller.Controller;
+import transferMessages.transfer.Msg;
+import transferMessages.transfer.TransferCanMsgs;
 
 public class TransferCanMsgsTest {
 
