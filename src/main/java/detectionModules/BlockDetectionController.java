@@ -1,9 +1,13 @@
 package detectionModules;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import transferMessages.transfer.Msg;
 import transferMessages.controller.UcanLibrary.UcanMsg;
 import transferMessages.transfer.TransferMsgs;
+import widget.controllers.RootController;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.*;
 
@@ -13,12 +17,13 @@ import static detectionModules.Feature.Command.*;
 import static detectionModules.Feature.TypeMsg.DANGER;
 import static detectionModules.Feature.TypeMsg.MANAGEMENT;
 import static detectionModules.Feature.TypeMsg.REPLY;
-import static halper.Ansi.ANSI_BLUE;
-import static halper.Ansi.ANSI_RESET;
 
-public abstract class BDcontroller {
+public abstract class BlockDetectionController {
 
-    protected TransferMsgs transferMsg;
+    protected Map<Byte, Bd> bds = new HashMap<>();
+
+    protected final TransferMsgs transferMsg;
+    protected RootController rootController;
 
     private int idDanger = 0x0;
     private int idManagement = 0x100;
@@ -27,13 +32,11 @@ public abstract class BDcontroller {
     private int spectrCount = 0;
     MeasureData measureData;
 
-    public BDcontroller(TransferMsgs transferMsg) {
+    private static Logger logger = LoggerFactory.getLogger(BlockDetectionController.class);
+
+    public BlockDetectionController(TransferMsgs transferMsg) {
         this.transferMsg = transferMsg;
         Parsing.setId(idDanger, idManagement, idReply);
-    }
-
-    public void setTransferCanMsg(TransferMsgs transferCanMsg) {
-        this.transferMsg = transferCanMsg;
     }
 
     private byte getCodeLengthByParameter(Parameter parameter) {
@@ -57,6 +60,8 @@ public abstract class BDcontroller {
     private void parsingMsg(UcanMsg msg) {
         if(spectrCount == 0) {
             Parsing parsing = new Parsing().parsingMsg(msg);
+            logger.info(parsing.getLog());
+
             byte commandCode = parsing.getCommandCode();
             TypeMsg typeMsg = parsing.getTypeMsg();
 
@@ -79,7 +84,7 @@ public abstract class BDcontroller {
             }
             else if(commandCode == commandsCodes.get(SET_PARAMETER)) {
                 if(typeMsg == MANAGEMENT || typeMsg == REPLY) {
-                    onNewParameter(parsing.getParameterCode(), parsing.getParameterValue());
+                    onNewParameter(parsing.getLogicNumber(), parsing.getParameterCode(), parsing.getParameterValue());
                 }
             }
             else if(commandCode == commandsCodes.get(GET_PARAMETER)) {
@@ -87,18 +92,20 @@ public abstract class BDcontroller {
             else if(commandCode == commandsCodes.get(CALIBRATION)) {
             }
             else if(commandCode == commandsCodes.get(MEASURE)) {
+
+                System.out.println("!!!!!!!!");
+                byte logicNumber = parsing.getLogicNumber();
+                System.out.println(logicNumber);
+                onStartMeasureData(parsing.getLogicNumber()); //todo!!!
                 measureData = new MeasureData();
                 spectrCount = parsing.getSpectrLenght()/4;
             }
-            showInfo(parsing.getLog());
         }
         else {
             measureData.add(new Parsing().parsingMeasureMsg(msg));
             if(--spectrCount ==0){
-                onNewMeasureData(measureData);
-                measureData.data.clear();
+                onNewMeasureData((byte)1, measureData); //Todo !!!!!!!!!!!!!!
             }
-
         }
     }
 
@@ -207,13 +214,20 @@ public abstract class BDcontroller {
         writeMsgs(msgs);
     }
 
+    protected void importMeasureData(byte logicNumber) throws IOException {
+        ((Bdmg)bds.get(logicNumber)).importMeasure();
+    }
+
+
     protected abstract void onNewBD(int serialNumber);
-    protected abstract void onNewParameter(byte parameter, int value);
-    protected abstract void onNewParameter(byte parameter, float value);
-    protected abstract void onNewMeasureData(MeasureData data);
-    protected abstract void onNewMeasureData(CalibrationData data);
+    protected abstract void onNewParameter(byte logicNumber, byte parameter, int value);
+    protected abstract void onNewParameter(byte logicNumber, byte parameter, float value);
+    protected abstract void onStartMeasureData(byte logicNumber);
+    protected abstract void onNewMeasureData(byte logicNumber, MeasureData data);
 
     public class MeasureData {
+        private List<Short> data = new ArrayList<>(1024);
+
         public MeasureData() {
         }
 
@@ -221,13 +235,11 @@ public abstract class BDcontroller {
             this.data.addAll(data);
         }
 
-        List<Short> data = new ArrayList<>();
+        public List<Short> getData() {
+            return data;
+        }
     }
 
-    interface CalibrationData {
-    }
-
-    private void showInfo(String msg) {
-        System.out.println(ANSI_BLUE + msg + ANSI_RESET);
+    public class CalibrationData {
     }
 }

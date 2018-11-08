@@ -1,11 +1,13 @@
 package widget;
 
+import detectionModules.BlockDetectionController;
 import javafx.application.Application;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
@@ -13,13 +15,18 @@ import widget.controllers.*;
 
 import java.io.IOException;
 
+import static detectionModules.ExecutorBlockDetectionCommands.shutDown;
 import static widget.controllers.RootController.*;
 
 public class Widget extends Application {
 
-    public static void initialize(String[] args) {
+    private static BlockDetectionController blockDetectionController;
+
+    public static void initialize(String[] args, BlockDetectionController controller) {
         System.out.println("Widget initialize\t" + Thread.currentThread().getName());
+        blockDetectionController = controller;
         launch(args);
+        System.out.println("Widget deInitialize\t" + Thread.currentThread().getName());
     }
 
     @Override
@@ -30,30 +37,31 @@ public class Widget extends Application {
         RootController rootController = (RootController) paneAndController.controller;
         rootPane.getChildren().forEach(node -> {
             String id = node.getId();
-            if (id != null) {
-                if (id.equals("tabs") && node instanceof TabPane) {
+            if(id != null) {
+                if(id.equals("tabs") && node instanceof TabPane) {
                     ObservableList<Tab> tabs = ((TabPane) node).getTabs();
-                    tabs.add(new Tab("Контроль",    getControlPane(rootController).pane));
-                    tabs.add(new Tab("Измерение",   getMeasurePane(rootController).pane));
+                    //tabs.add(new Tab("Контроль",    getControlPane(rootController).pane));
+                    //tabs.add(new Tab("Измерение",   getMeasurePane(rootController).pane));
                     tabs.add(new Tab("Наблюдение",  getObservationPane(rootController).pane));
-                    tabs.add(new Tab("Хранение",    getStoragePane(rootController).pane));
-                    tabs.add(new Tab("База",        getBasePane(rootController).pane));
-                    tabs.add(new Tab("Обработка",   getProcessingPane(rootController).pane));
-                    tabs.add(new Tab("Эталоны",     getIdealModelsPane(rootController).pane));
-                    tabs.add(new Tab("Параметры",   getParametersPane(rootController).pane));
+//                    tabs.add(new Tab("Хранение",    getStoragePane(rootController).pane));
+//                    tabs.add(new Tab("База",        getBasePane(rootController).pane));
+//                    tabs.add(new Tab("Обработка",   getProcessingPane(rootController).pane));
+//                    tabs.add(new Tab("Эталоны",     getIdealModelsPane(rootController).pane));
+//                    tabs.add(new Tab("Параметры",   getParametersPane(rootController).pane));
                 }
                 else if (id.equals("header") && node instanceof StackPane) {
-                    ((StackPane) node).getChildren().add(getHeaderPane().pane);
+                    ((StackPane) node).getChildren().add(getHeaderPane(rootController).pane);
+                }
+                else if(id.equals("bottom")) {
+                    ((StackPane) node).getChildren().add(getBottomPane(rootController).pane);
                 }
             }
         });
 
         primaryStage.setTitle("Spectrum");
         primaryStage.setScene(new Scene(rootPane, 900, 550));
-
         primaryStage.show();
     }
-
 
     private PaneAndController getRootPane() {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("../../resources/fxml/Root.fxml"));
@@ -65,9 +73,10 @@ public class Widget extends Application {
             e.printStackTrace();
         }
         RootController rootController = loader.getController();
+        rootController.setBlockDetectionController(blockDetectionController);
         return new PaneAndController(rootPane, rootController);
     }
-    private PaneAndController getHeaderPane() {
+    private PaneAndController getHeaderPane(RootController rootController) {
         FXMLLoader loader;
         loader = new FXMLLoader(getClass().getResource("../../resources/fxml/Header.fxml"));
         Pane headerPane = null;
@@ -78,7 +87,24 @@ public class Widget extends Application {
             e.printStackTrace();
         }
         HeaderController headerController = loader.getController();
+        headerController.setParent(rootController);
+        rootController.addChild(HEADER_PANE_NAME, headerController);
         return  new PaneAndController(headerPane, headerController);
+    }
+    private PaneAndController getBottomPane(RootController rootController) {
+        FXMLLoader loader;
+        loader = new FXMLLoader(getClass().getResource("../../resources/fxml/Bottom.fxml"));
+        Pane bottomPane = null;
+        try {
+            bottomPane = loader.load();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        BottomController bottomController = loader.getController();
+        bottomController.setParent(rootController);
+        rootController.addChild(BOTTOM_PANE_NAME, bottomController);
+        return new PaneAndController(bottomPane, bottomController);
     }
     private PaneAndController getControlPane(RootController rootController) {
         FXMLLoader loader;
@@ -213,6 +239,6 @@ public class Widget extends Application {
 
     @Override
     public void stop() {
-        System.out.println("Widget stop\t" + Thread.currentThread().getName());
+        shutDown();
     }
 }

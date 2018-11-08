@@ -11,6 +11,8 @@ import com.sun.jna.platform.win32.WinDef.WORD;
 import com.sun.jna.platform.win32.WinDef.DWORDByReference;
 import com.sun.jna.platform.win32.WinDef.WORDByReference;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import transferMessages.transfer.Msg;
 import transferMessages.controller.UcanLibrary.UcanMsg;
 import transferMessages.controller.UcanLibrary.UcanInit;
@@ -30,18 +32,20 @@ import static transferMessages.controller.Features.FunctionReturnCode.*;
 import static transferMessages.controller.Features.HandleState.*;
 import static transferMessages.controller.Features.Reset.*;
 
-public class UсanController implements Controller {
+public class UсanTransferController implements TransferController {
 
 	private final UcanLibrary usbCanLibrary;
 	private final UcanConnectCallback connectUsbCan;
 	private final UcanCallback eventsUsbCan;
 	private final ByteByReference usbCanHandle  = new ByteByReference();
-	private final BYTE usbCanChannel			= new BYTE(channels.get(USBCAN_CHANNEL_ANY));
+	private final BYTE usbCanChannel			= new BYTE(channels.get(USBCAN_CHANNEL_CH0));
 	private final short	baudrate 				= baudsrate.get(USBCAN_BAUD_500kBit).shortValue();
 
-	public UсanController(UcanLibrary usbCanLibrary,
-                          UcanCallback eventsUsbCan,
-                          UcanConnectCallback connectUsbCan) {
+    Logger logger = LoggerFactory.getLogger(UсanTransferController.class);
+
+	public UсanTransferController(UcanLibrary usbCanLibrary,
+                                  UcanCallback eventsUsbCan,
+                                  UcanConnectCallback connectUsbCan) {
 		this.usbCanLibrary = usbCanLibrary;
 		this.connectUsbCan = connectUsbCan;
 		this.eventsUsbCan = eventsUsbCan;
@@ -56,6 +60,7 @@ public class UсanController implements Controller {
 			//TODO Logger!
 			throw new RuntimeException("UcanInitHwConnectControlEx error " + res.intValue());
 		}
+        logger.info("initHardwareControl ok");
 	}
 
 	private void initialize() {
@@ -72,6 +77,7 @@ public class UсanController implements Controller {
 		if(res.intValue() != functionReturnCodes.get(USBCAN_SUCCESSFUL)) {
 			throw new RuntimeException("UcanInitHardwareEx error " + res.intValue());
 		}
+        logger.info("initHardware ok");
 	}
 
 	private void initCan() {
@@ -95,6 +101,7 @@ public class UсanController implements Controller {
 		if(res.intValue() != functionReturnCodes.get(USBCAN_SUCCESSFUL)) {
 			throw new RuntimeException("UcanInitCanEx2 error " + res.intValue());
 		}
+        logger.info("initCan ok");
 	}
 
 	public void shutDown() {
@@ -110,6 +117,7 @@ public class UсanController implements Controller {
 		if (res.intValue() != functionReturnCodes.get(USBCAN_SUCCESSFUL)) {
 			throw new RuntimeException("UcanDeinitCanEx error " + res.intValue());
 		}
+        logger.info("deInitCan ok");
 	}
 
 	private void deInitHardware() {
@@ -118,6 +126,7 @@ public class UсanController implements Controller {
 		if (res.intValue() != functionReturnCodes.get(USBCAN_SUCCESSFUL)) {
 			throw new RuntimeException("UcanDeinitHardware error " + res.intValue());
 		}
+        logger.info("deInitHardware ok");
 	}
 
 	private void deInitHardwareControl() {
@@ -125,6 +134,7 @@ public class UсanController implements Controller {
 		if (res.intValue() != functionReturnCodes.get(USBCAN_SUCCESSFUL)) {
 			throw new RuntimeException("UcanDeinitHwConnectControl error " + res.intValue());
 		}
+        logger.info("deInitHardwareControl ok");
 	}
 
 	public void close() {
@@ -147,6 +157,7 @@ public class UсanController implements Controller {
       	if (res.intValue() != functionReturnCodes.get(USBCAN_SUCCESSFUL)) {
       		throw new RuntimeException("UcanWriteCanMsgEx error " + res.intValue());
         }
+        logger.info("writeMsgs ok");
 	}
 
 	@Override
@@ -170,6 +181,8 @@ public class UсanController implements Controller {
 		List<UcanMsg> listCanMsg = new ArrayList<>(size);
 		for (int i = 0; i < size; i++)
 			listCanMsg.add(arrayCanMsg[i]);
+
+        logger.info("readMsgs ok");
 
 		return listCanMsg;
 	}

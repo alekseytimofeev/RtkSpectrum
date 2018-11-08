@@ -1,11 +1,11 @@
-package transferMessages;
+package transferMessages.callbacks;
 
 import com.sun.jna.Callback;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.WinDef.*;
 
-import static transferMessages.Features.events;
-import static transferMessages.Features.Event.*;
+import static transferMessages.controller.Features.Event.*;
+import static transferMessages.controller.Features.events;
 
 public abstract class UcanConnectCallback implements Callback {
 
@@ -15,6 +15,7 @@ public abstract class UcanConnectCallback implements Callback {
 
     //void PUBLIC UcanConnectControlFktEx(DWORD dwEvent_p, DWORD dwParam_p, void* pArg_p)
     public  void callback(DWORD event, DWORD param, Pointer arg) {
+
         if(event.intValue() 		== events.get(USBCAN_EVENT_CONNECT)) {
             onEventConnect();
         }

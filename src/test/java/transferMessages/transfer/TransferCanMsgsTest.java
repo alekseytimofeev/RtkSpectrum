@@ -1,5 +1,6 @@
-package transferMessages;
+package transferMessages.transfer;
 
+import detectionModules.BlockDetectionController;
 import org.junit.Assert;
 import org.junit.Before;
 
@@ -16,20 +17,20 @@ import com.sun.jna.platform.win32.WinDef.DWORD;
 
 import org.junit.Test;
 import transferMessages.controller.UcanLibrary.UcanMsg;
-import transferMessages.controller.Controller;
-import transferMessages.transfer.Msg;
-import transferMessages.transfer.TransferCanMsgs;
+import transferMessages.controller.TransferController;
 
 public class TransferCanMsgsTest {
 
     private TransferCanMsgs transfer;
-    private Controller controller;
+    private TransferController controller;
+    private BlockDetectionController bdController;
     private List<Msg> list = initMsgs(10);
 
     @Before
     public void setUp() {
         initControllerMock(list);
-        transfer = new TransferCanMsgs(controller);
+        initBDcontrollerMock();
+        transfer = new TransferCanMsgs(controller, bdController);
     }
 
     private List<Msg> initMsgs(int count) {
@@ -52,9 +53,13 @@ public class TransferCanMsgsTest {
     }
 
     private void initControllerMock(List<Msg> list) {
-        controller = mock(Controller.class);
+        controller = mock(TransferController.class);
         doNothing().when(controller).writeMsgs(any(List.class));
         when(controller.readMsgs()).thenAnswer(answer->list);
+    }
+
+    private void initBDcontrollerMock() {
+        this.bdController = mock(BlockDetectionController.class);
     }
 
     @Test
@@ -71,4 +76,5 @@ public class TransferCanMsgsTest {
         transfer.subFromTransmitMsgs();
         verify(controller, times(1)).writeMsgs(any(List.class));
     }
+
 }

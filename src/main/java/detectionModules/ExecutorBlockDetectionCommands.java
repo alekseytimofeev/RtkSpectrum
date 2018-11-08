@@ -3,28 +3,27 @@ package detectionModules;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import detectionModules.BlockDetectionCommands.BlockDetectionCommand;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import static halper.Ansi.ANSI_CYAN;
-import static halper.Ansi.ANSI_RESET;
-
-public class ExecutorBDcommands  {
+public class ExecutorBlockDetectionCommands {
 
     private static Object sync = new Object();
     private static ExecutorService pool = Executors.newSingleThreadExecutor();
 
-    private ExecutorBDcommands() {
+    private static Logger logger = LoggerFactory.getLogger(ExecutorBlockDetectionCommands.class);
+
+    private ExecutorBlockDetectionCommands() {
     }
 
-    public static void addComand(BlockDetectionCommand command) {
-        showInfo("Execution: " + command.toString());
-        pool.submit(()->command.execute());
+    public static void addCommand(BlockDetectionCommand command) {
+        logger.info("Execution: " + command.toString());
+        pool.submit(()-> command.execute());
     }
 
     public static void shutDown() {
         pool.shutdown();
     }
 
-    private static void showInfo(String msg) {
-        System.out.println(ANSI_CYAN + msg + ANSI_RESET);
-    }
+
 }

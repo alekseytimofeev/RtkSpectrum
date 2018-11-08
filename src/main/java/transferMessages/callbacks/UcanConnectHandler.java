@@ -1,29 +1,28 @@
-package transferMessages;
+package transferMessages.callbacks;
 
-public class UcanConnectHandler extends UcanConnectCallback {
+import transferMessages.transfer.TransferMsgs;
 
-    private TransferMsgs handler;
+public class UcanConnectHandler extends UcanConnectCallback
+{
 
-    public UcanConnectHandler() {
-    }
+    private final TransferMsgs handler;
 
     public UcanConnectHandler(TransferMsgs handler) {
         this.handler = handler;
     }
 
-    public void setHandler(TransferMsgs handler) {
-        this.handler = handler;
-    }
-
     @Override
     void onEventConnect() {
+        System.out.println("onEventConnect " + Thread.currentThread().getName());
     }
 
     @Override
     void onEventDisconnect() {
+        System.out.println("onEventDisconnect");
     }
 
     @Override
     void onEventFatalDisconnect() {
+        System.out.println("onEventFatalDisconnect");
     }
 }

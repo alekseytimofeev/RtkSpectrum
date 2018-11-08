@@ -1,0 +1,56 @@
+<configuration>
+
+    <appender name="GREEN" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%green(%d{HH:mm:ss.SSS} [%thread] %-5level %logger{54} - %msg%n)</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="YELLOW" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%yellow(%d{HH:mm:ss.SSS} [%thread] %-5level %logger{54} - %msg) %n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="CYAN" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%cyan(%d{HH:mm:ss.SSS} [%thread] %-5level %logger{54} - %msg%n)</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="BLUE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%blue(%d{HH:mm:ss.SSS} [%thread] %-5level %logger{54} - %msg%n)</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{54} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+
+    <logger name="transferMessages.transfer.TransferCanMsgs" level="DEBUG">
+        <appender-ref ref="GREEN"/>
+    </logger>
+
+    <logger name="transferMessages.controller.UсanTransferController" level="DEBUG">
+        <appender-ref ref="YELLOW"/>
+    </logger>
+
+    <logger name="detectionModules.ExecutorBlockDetectionCommands" level="DEBUG">
+        <appender-ref ref="CYAN"/>
+    </logger>
+
+    <logger name="detectionModules.BlockDetectionController" level="DEBUG">
+        <appender-ref ref="BLUE"/>
+    </logger>
+
+    <!--<root level="debug">-->
+        <!--<appender-ref ref="STDOUT" />-->
+    <!--</root>-->
+</configuration>
+
+
+

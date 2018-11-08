@@ -5,28 +5,17 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="200.0" minWidth="-Infinity" prefHeight="556.0" prefWidth="809.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="widget.controllers.RootController">
-   <bottom>
-      <Button mnemonicParsing="false" onAction="#onButtonClickWorkDB" text="SPECRT" BorderPane.alignment="CENTER" />
-   </bottom>
-   <right>
-      <Button mnemonicParsing="false" text="Button" BorderPane.alignment="CENTER" />
-   </right>
+<BorderPane prefHeight="576.0" prefWidth="847.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="widget.controllers.RootController">
    <effect>
       <Blend />
    </effect>
    <center>
-      <TabPane fx:id="tabs" prefHeight="200.0" prefWidth="200.0" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER" />
+      <TabPane fx:id="tabs" maxHeight="1.7976931348623157E308" style="-fx-background-color: #32fa21;" tabClosingPolicy="UNAVAILABLE" BorderPane.alignment="CENTER" />
    </center>
    <top>
-      <StackPane fx:id="header" prefHeight="150.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+      <StackPane fx:id="header" maxHeight="-Infinity" minHeight="0.0" prefHeight="100.0" BorderPane.alignment="CENTER" />
    </top>
-   <left>
-      <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
-         <children>
-            <Label fx:id="lbl" text="Label" />
-            <Label text="Label" />
-         </children>
-      </VBox>
-   </left>
+   <bottom>
+      <StackPane fx:id="bottom" maxHeight="-Infinity" minHeight="0.0" prefHeight="100.0" BorderPane.alignment="CENTER" />
+   </bottom>
 </BorderPane>

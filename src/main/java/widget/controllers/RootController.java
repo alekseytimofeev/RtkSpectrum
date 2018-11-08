@@ -1,8 +1,10 @@
 package widget.controllers;
 
+import detectionModules.BlockDetectionController.MeasureData;
+import detectionModules.BlockDetectionController;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.chart.XYChart;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import widget.Parentable;
@@ -12,8 +14,8 @@ import java.util.*;
 
 public class RootController implements Initializable {
 
-    public String str = "1233";
-    private Map<String, Parentable> childs = new HashMap<>();
+    public static Map<String, Parentable> childs = new HashMap<>();
+    private BlockDetectionController blockDetectionController;
 
     public static String CONTROL_PANE_NAME          = "ControlPane";
     public static String DATA_BASE_PANE_NAME        = "DataBasePane";
@@ -23,7 +25,16 @@ public class RootController implements Initializable {
     public static String PARAMETERS_PANE_NAME       = "ParametersPane";
     public static String PROCESSING_PANE_NAME       = "ProcessingPane";
     public static String STORAGE_PANE_NAME          = "StoragePane";
+    public static String HEADER_PANE_NAME          = "HeaderPane";
+    public static String BOTTOM_PANE_NAME          = "BottomPane";
 
+    public BlockDetectionController getBdController() {
+        return blockDetectionController;
+    }
+
+    public void setBlockDetectionController(BlockDetectionController blockDetectionController)  {
+        this.blockDetectionController = blockDetectionController;
+    }
 
     @FXML
     public Button btn;
@@ -33,17 +44,6 @@ public class RootController implements Initializable {
 
     @FXML
     private void onButtonClickWorkDB() {
-
-        //ExecutorBDcommands.addComand();
-
-        XYChart.Series series = new XYChart.Series();
-        series.getData().add(new XYChart.Data(1, 10));
-        series.getData().add(new XYChart.Data(2, 11));
-        series.getData().add(new XYChart.Data(3, 12));
-        series.getData().add(new XYChart.Data(4, 13));
-        series.getData().add(new XYChart.Data(5, 14));
-        ObservationController parentable = (ObservationController) childs.get(OBSERVATION_PANE_NAME);
-        parentable.showGraph(series, 0, 10);
     }
 
     public RootController() {
@@ -57,6 +57,18 @@ public class RootController implements Initializable {
 
     public void addChild(String name, Parentable child) {
         childs.put(name, child);
+    }
+
+    public static void showGraph(MeasureData data) {
+        Platform.runLater(() ->((ObservationController)(childs.get(OBSERVATION_PANE_NAME))).showGraph(data));
+    }
+
+    public static void addFoundedDevice(byte logicNumber, int serialNumber) {
+        Platform.runLater(() ->((HeaderController)(childs.get(HEADER_PANE_NAME))).addFoundedDevice(logicNumber, serialNumber));
+    }
+
+    public static void addLog(BottomController.Log log) {
+        Platform.runLater(() ->((BottomController)(childs.get(BOTTOM_PANE_NAME))).addLod(log));
     }
 
 }

@@ -3,7 +3,7 @@ package detectionModules;
 
 import org.junit.Before;
 import org.junit.Test;
-import transferMessages.UcanLibrary.UcanMsg;
+import transferMessages.controller.UcanLibrary.UcanMsg;
 
 
 import java.nio.ByteBuffer;

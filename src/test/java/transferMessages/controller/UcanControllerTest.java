@@ -1,4 +1,4 @@
-package transferMessages;
+package transferMessages.controller;
 
 import com.sun.jna.Pointer;
 import org.junit.Assert;
@@ -20,8 +20,6 @@ import static transferMessages.controller.Features.VersionType.*;
 
 import org.omg.CORBA.IntHolder;
 import org.omg.CORBA.LongHolder;
-import transferMessages.controller.Features;
-import transferMessages.controller.UcanLibrary;
 import transferMessages.controller.UcanLibrary.UcanInit;
 import transferMessages.controller.UcanLibrary.UcanStatus;
 import transferMessages.controller.UcanLibrary.UcanMsgCountInfo;
@@ -29,14 +27,13 @@ import transferMessages.controller.UcanLibrary.UcanMsgCountInfo;
 import com.sun.jna.platform.win32.WinDef.*;
 import transferMessages.callbacks.UcanCallback;
 import transferMessages.callbacks.UcanConnectCallback;
-import transferMessages.controller.UсanController;
 
 public class UcanControllerTest {
 
     private UcanLibrary usbCanLibrary;
     private UcanCallback eventsUsbCan;
     private UcanConnectCallback connectUsbCan;
-    private UсanController controller;
+    private UсanTransferController controller;
 
     @Before
     public void setUp() {
@@ -44,7 +41,7 @@ public class UcanControllerTest {
         initEventsUsbCanMock();
         initUsbCanLibraryMock();
 
-        controller = new UсanController(usbCanLibrary, eventsUsbCan, connectUsbCan);
+        controller = new UсanTransferController(usbCanLibrary, eventsUsbCan, connectUsbCan);
     }
 
     private void initUsbCanLibraryMock(){

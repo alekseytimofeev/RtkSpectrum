@@ -1,18 +1,13 @@
-package transferMessages;
+package transferMessages.callbacks;
+
+import transferMessages.transfer.TransferMsgs;
 
 public class UcanHandler extends UcanCallback {
 
-    private TransferMsgs handler;
-
-    public UcanHandler() {
-    }
+    private final TransferMsgs handler;
 
     public UcanHandler(TransferMsgs transfer) {
-        this.handler = handler;
-    }
-
-    public void setHandler(TransferMsgs handler) {
-        this.handler = handler;
+        this.handler = transfer;
     }
 
     @Override

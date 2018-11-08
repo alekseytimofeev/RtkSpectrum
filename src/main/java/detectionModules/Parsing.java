@@ -1,10 +1,12 @@
 package detectionModules;
 
 
-import transferMessages.UcanLibrary.UcanMsg;
+import transferMessages.controller.UcanLibrary.UcanMsg;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static detectionModules.Feature.*;
 import static detectionModules.Feature.Command.*;
@@ -24,6 +26,7 @@ public class Parsing {
     private byte stateCode = -1;
     private byte parameterCode = -1;
     private int parameterValue = -1;
+    private int spectrLenght = -1;
     private byte stabilization = -1;
 
     private StringBuilder log = new StringBuilder();
@@ -41,14 +44,17 @@ public class Parsing {
     }
 
     public Parsing parsingMsg(UcanMsg msg) {
+
         if(idDanger == -1 || idManagement == -1 || idReply == -1)
-            throw new IllegalArgumentException(ERROR_INIT_IDS);
+            throw new RuntimeException(ERROR_INIT_IDS);
 
         typeMsg = getTypeMsgById(msg.getId());
-        if(typeMsg == UNKNOWN)
-            throw new IllegalArgumentException(ERROR_PARSING_UNKNOWN_TYPE +  msg);
+        if(typeMsg == UNKNOWN) {
+            //throw new RuntimeException(ERROR_PARSING_UNKNOWN_TYPE +  msg);
+        }
 
         commandCode = getCommandCode(msg.getData());
+        logicNumber = getLogicNumberFromDataMsg(msg.getData()); //-----
         if(commandCode == commandsCodes.get(SET_LOGIC_NUMBER)) {
             parsingMsgBySetLogicNumber(typeMsg, msg);
         }
@@ -68,7 +74,8 @@ public class Parsing {
             parsingMsgByMeasure(typeMsg, msg);
         }
         else {
-            throw new IllegalArgumentException(ERROR_PARSING_UNKNOWN_COMMAND_CODE + " " + msg);
+            parsingMsgByUnknown(typeMsg, msg);
+            //throw new IllegalArgumentException(ERROR_PARSING_UNKNOWN_COMMAND_CODE + " " + msg);
         }
 
         log.append(msg.getId() + "\t");
@@ -76,17 +83,25 @@ public class Parsing {
         return this;
     }
 
+    public List<Short> parsingMeasureMsg(UcanMsg msg) {
+        byte[] dataCanMsg = msg.getData();
+        List<Short> list = new ArrayList<>();
+        for(int i=0; i<dataCanMsg.length; i+=2)
+            list.add(ByteBuffer.wrap(new byte[] {dataCanMsg[i], dataCanMsg[i+1]}).getShort());
+        return list;
+    }
+
     private TypeMsg getTypeMsgById(int id) { //TODO алгоритм!
         if(id >= idDanger && id < idDanger + 0x100) {
-            log.append("--->\t");
+            log.append("BD --->\t");
             return DANGER;
         }
         else if(id >= idManagement && id < idManagement + 0x100) {
-            log.append("<---\t");
+            log.append("BD <---\t");
             return MANAGEMENT;
         }
         else if(id >= idReply && id < idReply + 0x100) {
-            log.append("--->\t");
+            log.append("BD --->\t");
             return REPLY;
         }
         else {
@@ -144,11 +159,12 @@ public class Parsing {
         }
     }
 
-    private void parsingMsgByMeasure(Feature.TypeMsg typeMsg, UcanMsg msg) {
-        if(typeMsg == MANAGEMENT) {
+    private void parsingMsgByMeasure(TypeMsg typeMsg, UcanMsg msg) {
+        byte[] dataCanMsg = msg.getData();
+        if(typeMsg == REPLY) {
+            spectrLenght = 1024; //Todo какая то херь в протоколе!
         }
-        else if(typeMsg == REPLY) {
-        }
+        addLogByMeasure(typeMsg, dataCanMsg);
     }
 
     private byte getLogicNumberFromDataMsg(byte[] dataCanMsg) {
@@ -220,6 +236,25 @@ public class Parsing {
         }
     }
 
+    private boolean isStartMeasure(byte[] dataCanMsg) {
+        return dataCanMsg[1] == 1;
+    }
+    private void addLogByMeasure(TypeMsg typeMsg, byte[] dataCanMsg) {
+        if(isStartMeasure(dataCanMsg)) {
+            log.append("Старт измерения спекта ");
+        }
+        else {
+            log.append("Стоп измерения спекта ");
+        }
+    }
+
+    private void parsingMsgByUnknown(TypeMsg typeMsg, UcanMsg msg) {
+        log.append("Неизвестная команда ");
+    }
+
+
+
+
     public String getLog() {
         String str = log.toString();
         log.setLength(0);
@@ -270,6 +305,10 @@ public class Parsing {
         if(parameterValue == -1)
             throw new IllegalStateException(ERROR_PARSING_NOT_VALUE_PARAMETER);
         return parameterValue;
+    }
+
+    public int getSpectrLenght() {
+        return spectrLenght;
     }
 
     public byte getStabilization() {

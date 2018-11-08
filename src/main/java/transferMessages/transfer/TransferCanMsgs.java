@@ -1,54 +1,59 @@
-package transferMessages;
+package transferMessages.transfer;
 
-import detectionModules.BDcommands.ReadMessage;
-import detectionModules.BDcontroller;
-import detectionModules.ExecutorBDcommands;
+
+import detectionModules.BlockDetectionCommands.ReadMessage;
+import detectionModules.BlockDetectionController;
+import detectionModules.ExecutorBlockDetectionCommands;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import transferMessages.controller.TransferController;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
-
 public class TransferCanMsgs implements TransferMsgs {
 
-	private final Controller controller;
+    Logger logger = LoggerFactory.getLogger(TransferCanMsgs.class);
 
-    private final BDcontroller bdController;
+	private final TransferController transferController;
+    private final BlockDetectionController blockDetectionController;
 
 	private Queue<Msg> transmitMsgs = new LinkedList<>();
 	private Queue<Msg> receiveMsgs = new LinkedList<>();
 	private int countTrMsg;
 	private int countRecMsg;
 
-	public TransferCanMsgs(Controller controller, BDcontroller bdController) {
-        this.controller = controller;
-        this.bdController = bdController;
+	public TransferCanMsgs(TransferController controller, BlockDetectionController bdController) {
+        this.transferController = controller;
+        this.blockDetectionController = bdController;
 	}
 
-	//------------------------------------receive
-
+    //------------------------------------receive
     @Override
     public void addToReceiveMsgs() {
-        List<? extends Msg> msgs = controller.readMsgs();
-        for (Msg msg : msgs) {
-            receiveMsgs.add(msg);
-            System.out.println("New receive msg:" + msg);
+        List<? extends Msg> msgs = transferController.readMsgs();
+        for (int i = 0; i < msgs.size(); i++) {
+            receiveMsgs.add(msgs.get(i));
+            logger.info(String.format("%d) New receive msg: %s" , i, msgs.get(i)));
         }
+        logger.info(String.format("Size receive msgs: %d", msgs.size()));
 		countRecMsg += msgs.size();
 
-        ExecutorBDcommands.addComand(new ReadMessage(bdController));
+        ExecutorBlockDetectionCommands.addCommand(new ReadMessage(blockDetectionController)); //Todo !!!!!!!!
 	}
 
     @Override
 	public List<? extends Msg> subFromReceiveMsgs() {
 		List<Msg> msgs = new ArrayList<>(receiveMsgs.size());
-        System.out.println( "size = " +receiveMsgs.size());
         int size =  receiveMsgs.size();
-		for (int i = 0; i < size; i++) {
+        int i;
+        for ( i = 0; i < size; i++) {
             msgs.add(receiveMsgs.poll());
-            System.out.println("Read receive msg:" + msgs.get(i));
+            logger.info(String.format("%d) Read receive msg: %s", i, msgs.get(i)));
         }
+        logger.info(String.format("Size list receive msgs: %d", i));
 		return msgs;
 	}
 
@@ -57,8 +62,9 @@ public class TransferCanMsgs implements TransferMsgs {
     public void addToTransmitMsgs(List<? extends Msg> msgs) {
         for (Msg msg : msgs) {
             transmitMsgs.add(msg);
-            System.out.println("New transmit msg:" + msg);
+            logger.info(String.format("New transmit msg: %s", msg));
         }
+        subFromTransmitMsgs(); //Todo !!!!!!!!!!!!!!!!!!!!!!
 	}
 
     @Override
@@ -67,9 +73,9 @@ public class TransferCanMsgs implements TransferMsgs {
 		int size = transmitMsgs.size();
 		for (int i = 0; i < size; i++) {
 			msgs.add(transmitMsgs.poll());
-			System.out.println("New transmit msg:" + msgs.get(i));
+            logger.info(String.format("Write transmit msg: %s", msgs.get(i)));
 		}
-		controller.writeMsgs(msgs);
+		transferController.writeMsgs(msgs);
 		countTrMsg += msgs.size();
 	}
 
@@ -81,6 +87,7 @@ public class TransferCanMsgs implements TransferMsgs {
 	public int getCountRecMsg() {
 		return countRecMsg;
 	}
+
 
 }
 

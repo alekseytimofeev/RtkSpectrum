@@ -1,4 +1,4 @@
-package transferMessages;
+package transferMessages.controller;
 
 import java.util.Arrays;
 import java.util.List;
@@ -15,6 +15,7 @@ import com.sun.jna.platform.win32.WinDef.DWORD;
 import com.sun.jna.platform.win32.WinDef.WORD;
 import com.sun.jna.platform.win32.WinDef.DWORDByReference;
 import com.sun.jna.platform.win32.WinDef.WORDByReference;
+import transferMessages.transfer.Msg;
 
 public interface UcanLibrary extends Library {
 
@@ -58,7 +59,7 @@ public interface UcanLibrary extends Library {
 		public static class ByRef extends UcanInit implements ByReference{
 		}
 	}
-	class UcanMsg           extends Structure implements Msg {
+	class UcanMsg           extends Structure implements Msg  {
 
 		private static int sizeStructure = 18;
 

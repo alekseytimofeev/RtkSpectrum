@@ -10,7 +10,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" style="-fx-background-color: #FF3567;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="widget.controllers.ObservationController">
+<AnchorPane style="-fx-background-color: #FF3567;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="widget.controllers.ObservationController">
    <children>
       <LineChart fx:id="chart" layoutX="14.0" layoutY="14.0" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mouseTransparent="true" prefHeight="392.0" prefWidth="504.0" title="Супер график спектра" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="100.0" AnchorPane.topAnchor="10.0">
         <xAxis>
@@ -23,15 +23,6 @@
             <Cursor fx:constant="MOVE" />
          </cursor>
       </LineChart>
-      <VBox layoutX="507.0" layoutY="274.0" AnchorPane.bottomAnchor="10.0" AnchorPane.rightAnchor="10.0">
-         <children>
-            <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onBtnStart" text="Start">
-               <VBox.margin>
-                  <Insets bottom="10.0" />
-               </VBox.margin>
-            </Button>
-            <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onBtnFinish" text="Finish" />
-         </children>
-      </VBox>
+      <Button layoutX="548.0" layoutY="365.0" mnemonicParsing="false" onAction="#onBtnImportClick" text="import" />
    </children>
 </AnchorPane>

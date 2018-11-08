@@ -1,11 +1,11 @@
-package transferMessages;
+package transferMessages.callbacks;
 
 import com.sun.jna.Callback;
 import com.sun.jna.Pointer;
 import com.sun.jna.platform.win32.WinDef.*;
 
-import static transferMessages.Features.events;
-import static transferMessages.Features.Event.*;
+import static transferMessages.controller.Features.events;
+import static transferMessages.controller.Features.Event.*;
 
 public abstract class UcanCallback implements Callback {
 

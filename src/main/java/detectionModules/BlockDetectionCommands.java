@@ -3,16 +3,18 @@ package detectionModules;
 import detectionModules.Feature.Parameter;
 import detectionModules.Feature.State;
 
-public class BDcommands {
+import java.io.IOException;
 
-    private BDcommands() {
+public class BlockDetectionCommands {
+
+    private BlockDetectionCommands() {
     }
 
-    public static abstract class BDcommand {
+    public static abstract class BlockDetectionCommand {
         protected abstract void execute();
     }
 
-    public static class SetLogicalNumber extends BDcommand{
+    public static class SetLogicalNumber extends BlockDetectionCommand {
         private BlockDetectionController handler;
         private int serialNumber;
         private byte logicNumber;
@@ -34,7 +36,7 @@ public class BDcommands {
         }
     }
 
-    public static class GetParameter  extends BDcommand{
+    public static class GetParameter  extends BlockDetectionCommand {
         private BlockDetectionController handler;
         private byte logicNumber;
         private Parameter parameter;
@@ -55,7 +57,7 @@ public class BDcommands {
         }
     }
 
-    public static class SetParameter extends BDcommand {
+    public static class SetParameter extends BlockDetectionCommand {
         private BlockDetectionController handler;
         private byte logicNumber;
         private Parameter parameter;
@@ -79,7 +81,7 @@ public class BDcommands {
         }
     }
 
-    public static class StartMeasure extends BDcommand {
+    public static class StartMeasure extends BlockDetectionCommand {
         private BlockDetectionController handler;
         private byte logicNumber;
 
@@ -93,14 +95,13 @@ public class BDcommands {
             handler.measure(logicNumber, true);
         }
 
-
         @Override
         public String toString() {
             return String.format("Command StartMeasure, logicNumber: %d", logicNumber);
         }
     }
 
-    public static class StopMeasure extends BDcommand {
+    public static class StopMeasure extends BlockDetectionCommand {
         private BlockDetectionController handler;
         private byte logicNumber;
 
@@ -120,7 +121,7 @@ public class BDcommands {
         }
     }
 
-    public static class Calibration extends BDcommand {
+    public static class Calibration extends BlockDetectionCommand {
         private BlockDetectionController handler;
         private byte logicNumber;
 
@@ -140,7 +141,7 @@ public class BDcommands {
         }
     }
 
-    public static class SetState extends BDcommand {
+    public static class SetState extends BlockDetectionCommand {
         private BlockDetectionController handler;
         private byte logicNumber;
         private State state;
@@ -162,7 +163,7 @@ public class BDcommands {
         }
     }
 
-    public static class ReadMessage extends BDcommand {
+    public static class ReadMessage extends BlockDetectionCommand {
         private BlockDetectionController handler;
 
         public ReadMessage(BlockDetectionController handler) {
@@ -177,6 +178,33 @@ public class BDcommands {
         @Override
         public String toString() {
             return String.format("Command ReadMessage");
+        }
+    }
+
+    public static class ImportMeasureData extends BlockDetectionCommand {
+        private BlockDetectionController handler;
+        private byte logicNumber;
+
+        public ImportMeasureData(BlockDetectionController handler, byte logicNumber) {
+            this.handler = handler;
+            this.logicNumber = logicNumber;
+        }
+
+        @Override
+        protected void execute() {
+            try
+            {
+                handler.importMeasureData(logicNumber);
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public String toString() {
+            return String.format("Command ImportMeasureData, logicNumber: %d", logicNumber);
         }
     }
 }

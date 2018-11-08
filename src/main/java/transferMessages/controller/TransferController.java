@@ -4,7 +4,7 @@ import transferMessages.transfer.Msg;
 
 import java.util.List;
 
-public interface Controller {
+public interface TransferController {
     void writeMsgs(List<? extends Msg> msgs);
     List<? extends Msg> readMsgs();
 }

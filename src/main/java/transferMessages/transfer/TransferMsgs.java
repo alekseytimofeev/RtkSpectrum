@@ -1,4 +1,4 @@
-package transferMessages;
+package transferMessages.transfer;
 
 import java.util.List;
 

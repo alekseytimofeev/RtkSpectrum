@@ -1,16 +1,19 @@
 package widget.controllers;
 
-import javafx.collections.ObservableList;
+import detectionModules.BlockDetectionCommands;
+import detectionModules.BlockDetectionCommands.StartMeasure;
+import detectionModules.BlockDetectionController.MeasureData;
+import detectionModules.ExecutorBlockDetectionCommands;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.chart.CategoryAxis;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.NumberAxis;
 import javafx.scene.chart.XYChart;
 import widget.Parentable;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 public class ObservationController implements Initializable, Parentable{
@@ -26,13 +29,22 @@ public class ObservationController implements Initializable, Parentable{
     @FXML
     private NumberAxis axisChannels;
 
+    public void showGraph(MeasureData data) {
+        System.out.println("showGraph");
 
-    public void showGraph(XYChart.Series series, int lowerBound, int upperBound) {
+        XYChart.Series series = new XYChart.Series();
+        short max = 0;
+        for (int i=0; i<data.getData().size(); i++) {
+            series.getData().add(new XYChart.Data(i+1, data.getData().get(i)));
+            if(max<data.getData().get(i))
+                max = data.getData().get(i);
+        }
+
         chart.getData().clear();
-        axisSpectr.setLowerBound(lowerBound);
-        axisSpectr.setUpperBound(upperBound);
+        axisSpectr.setLowerBound(0);
+        axisSpectr.setUpperBound(max);
         axisChannels.setLowerBound(0);
-        axisChannels.setUpperBound(series.getData().size());
+        axisChannels.setUpperBound(data.getData().size());
         chart.getData().addAll(series);
     }
 
@@ -47,6 +59,15 @@ public class ObservationController implements Initializable, Parentable{
 
     @FXML
     void onBtnFinish(ActionEvent event) {
+    }
+
+    @FXML
+    public void onBtnImportClick() {
+        System.out.println("onBtnImportClick");
+
+        ExecutorBlockDetectionCommands.addCommand(
+                new BlockDetectionCommands.ImportMeasureData(parent.getBdController(), (byte)1));
+
     }
 
 
